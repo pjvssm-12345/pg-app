@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2F6B4F">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://idowfsvjkbatqshkpimg.supabase.co; base-uri 'none'; form-action 'none'">
+<title>PG Meals</title>
+<style>
+  :root {
+    --leaf: #2F6B4F; --leaf-dark: #234F3B; --turmeric: #8F5E00; --turmeric-bg: #FBF1DC;
+    --bg: #F4F7F5; --card: #FFFFFF; --ink: #1D2622; --muted: #56645D; --line: #DCE3DF;
+    --red: #B3261E; --red-bg: #FCE8E4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Telugu", "Noto Sans Kannada",
+      "Noto Sans Devanagari", sans-serif; -webkit-text-size-adjust: 100%; }
+  main { max-width: 480px; margin: 0 auto; padding: 12px 16px 40px; }
+  h1 { font-size: 22px; margin: 8px 0 2px; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 15px; }
+  .langs { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 6px; }
+  .langs button { min-height: 36px; padding: 0 12px; border-radius: 999px; background: #fff; color: var(--ink);
+    border: 1px solid var(--line); font-size: 14px; }
+  .langs button[aria-pressed="true"] { background: var(--leaf); color: #fff; border-color: var(--leaf); font-weight: 600; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+  .day-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .day-title { font-weight: 700; font-size: 17px; }
+  .pill { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { background: #E3F1EA; color: var(--leaf-dark); }
+  .pill.wait { background: var(--turmeric-bg); color: var(--turmeric); }
+  .pill.lock { background: #EDF1EF; color: var(--muted); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; border-top: 1px solid #EDF1EF; }
+  .row:first-of-type { border-top: 0; }
+  .meal { font-size: 16px; }
+  .meal small { display: block; color: var(--muted); font-size: 13px; }
+  /* big, easy switch */
+  .sw { position: relative; width: 58px; height: 34px; flex: none; }
+  .sw input { opacity: 0; width: 100%; height: 100%; margin: 0; position: absolute; inset: 0; cursor: pointer; z-index: 1; }
+  .sw span { position: absolute; inset: 0; background: #C9D3CE; border-radius: 999px; transition: background .15s; }
+  .sw span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 28px; height: 28px; background: #fff;
+    border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
+  .sw input:checked + span { background: var(--leaf); }
+  .sw input:checked + span::after { transform: translateX(24px); }
+  .sw input:disabled + span { opacity: .45; }
+  .sw input:focus-visible + span { outline: 3px solid #8FC1A8; outline-offset: 2px; }
+  button { font: inherit; border: 0; border-radius: 12px; min-height: 48px; padding: 0 16px; cursor: pointer; }
+  .btn { width: 100%; background: var(--leaf); color: #fff; font-weight: 600; font-size: 16px; padding: 10px 16px; }
+  .btn:disabled { opacity: .5; }
+  .btn.ghost { background: transparent; color: var(--leaf); border: 1.5px solid var(--leaf); }
+  .btn.done { background: #E3F1EA; color: var(--leaf-dark); }
+  .all { margin-top: 10px; }
+  label.f { display: block; font-weight: 600; margin: 14px 0 6px; }
+  select, input.t { width: 100%; font: inherit; font-size: 17px; min-height: 48px; padding: 0 12px; border: 1px solid #B8C4BE;
+    border-radius: 12px; background: #fff; color: var(--ink); }
+  input.t { letter-spacing: 6px; font-size: 22px; text-align: center; }
+  .msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--red-bg); color: var(--red); font-size: 15px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .tip { display: flex; gap: 12px; align-items: flex-start; border-radius: 14px; padding: 14px 16px; margin: 0 0 12px; }
+  .tip.daily { background: var(--turmeric-bg); border: 1px solid #F0DDB0; }
+  .tip.owner { background: #E3F1EA; border: 1px solid #BFDCCB; }
+  .tip .ico { font-size: 26px; line-height: 1; }
+  .tip b { display: block; font-size: 13px; letter-spacing: .3px; margin-bottom: 2px; }
+  .tip.daily b { color: var(--turmeric); }
+  .tip.owner b { color: var(--leaf-dark); }
+  .tip p { margin: 0; font-size: 16px; color: var(--ink); white-space: pre-line; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .chips button { min-height: 40px; padding: 0 12px; border-radius: 999px; background: #fff; color: var(--ink);
+    border: 1px solid var(--line); font-size: 14px; }
+  .chips button[aria-pressed="true"] { background: var(--leaf); color: #fff; border-color: var(--leaf); font-weight: 600; }
+  textarea.t2 { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; min-height: 64px; padding: 10px 12px;
+    border: 1px solid #B8C4BE; border-radius: 12px; margin-bottom: 10px; }
+  .rep { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .photo-row { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; flex-wrap: wrap; }
+  .photo-row img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+  .btn.small { width: auto; min-height: 40px; font-size: 15px; }
+  .pill.red { background: var(--red-bg); color: var(--red); }
+  .link { background: none; color: var(--muted); text-decoration: underline; min-height: 44px; padding: 0; font-size: 14px; }
+  .center { text-align: center; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); max-width: 92vw; background: #1D2622; color: #fff;
+    padding: 10px 16px; border-radius: 10px; font-size: 15px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .spinner { margin: 60px auto; width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--leaf);
+    border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .pass { border-radius: 20px; padding: 28px 18px; text-align: center; color: #fff; margin-top: 8px; }
+  .pass.ok { background: #1E7A4C; } .pass.already { background: #C25E00; } .pass.bad { background: #B3261E; } .pass.none { background: #56645D; }
+  .pass .big { font-size: 64px; line-height: 1; }
+  .pass h1 { color: #fff; font-size: 28px; margin: 10px 0 4px; }
+  .pass .who { font-size: 22px; font-weight: 700; }
+  .pass .clock { font-size: 40px; font-weight: 800; letter-spacing: 1px; margin-top: 12px; font-variant-numeric: tabular-nums; }
+  .pass .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #fff; margin-right: 8px; animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  .poster { text-align: center; padding: 20px 10px; } .poster svg { width: min(78vw, 360px); height: auto; }
+  @media print { .noprint { display: none; } }
+</style>
+</head>
+<body>
+<main id="app"><div class="spinner" aria-label="Loading"></div></main>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ---- Settings (public values; the database checks every request) ----
+const SUPABASE_URL = 'https://idowfsvjkbatqshkpimg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
+
+// ---- Words in each language. {x} is filled in by the page. ----
+const LANGS = [['en', 'English'], ['te', 'తెలుగు'], ['kn', 'ಕನ್ನಡ'], ['hi', 'हिन्दी']];
+const T = {
+  en: {
+    pass_ok: 'Enjoy your meal!', pass_already: 'Already served at {t}', pass_nomeal: 'No meal is being served now.', pass_notguest: 'Not registered on this phone. Only guests of this PG get food. Guests: log in below.', pass_back: 'Back to my meals', pass_skipped: 'You had switched this meal off - please update your meals next time.', 
+    phoneVerified: 'Your phone is verified ✓', reportOff: 'Reporting is turned off for you. Please talk to your PG manager.',
+    needLink: 'To report a problem, open the personal link your PG manager sent you on WhatsApp. If you did not get it, ask them to send it.',
+    useLinkTitle: 'Open your personal link', useLink: 'Please open the personal link your PG manager sent you on WhatsApp. If you did not get it, ask them to send it.',
+    addPhoto: '📷 Add a photo (optional)', photoAdded: 'Photo added ✓', removePhoto: 'Remove photo',
+    photoFail: 'Photo could not be sent. Try again or send without the photo.', st_not_real: 'Not a real problem',
+    probTitle: 'Problem in your room?', probHelp: 'Tell the PG manager. Choose what is wrong:',
+    cat_leak: 'Water leak', cat_hot_water: 'No hot water', cat_no_water: 'No water', cat_electrical: 'Light / fan / plug',
+    cat_cleaning: 'Room not cleaned', cat_hygiene: 'Hygiene / bathroom', cat_pests: 'Insects / rats',
+    cat_furniture: 'Bed / cupboard / furniture', cat_wifi: 'Wi-Fi', cat_other: 'Other',
+    probNote: 'Add a short note (optional)', probSend: 'Send to PG manager', probChoose: 'Choose what is wrong.',
+    probSent: 'Sent. Thank you!', yourReports: 'Your reports',
+    st_open: 'Open', st_in_progress: 'Being fixed', st_fixed: 'Fixed',
+    welcome: 'Welcome 🙏',
+    firstTime: "First time on this phone? Tell us who you are. We'll remember you next time.",
+    yourRoom: 'Your room', chooseRoom: 'Choose room', yourBed: 'Your bed', chooseRoomFirst: 'Choose room first',
+    last4: 'Last 4 digits of your phone number', cont: 'Continue', checking: 'Checking…',
+    phoneSaved: 'Your phone number must be saved with your PG manager.',
+    fillAll: 'Choose your room and bed, and enter 4 digits.',
+    ground: 'Ground floor', floor: 'Floor {n}',
+    hi: 'Hi {name} 👋', room: 'Room',
+    howTo: 'Switch off meals you will skip, by {cutoff} the evening before.',
+    todaysNote: "Today's note", ownerNote: 'Message from your PG',
+    today: 'Today', locked: 'Locked', notStaying: 'Not staying', replied: 'Replied ✓', notReplied: 'Not replied yet',
+    breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', eating: 'Eating', skipping: 'Skipping',
+    allTap: 'Tap: I am eating all meals', allDone: '✓ Eating all meals', allBack: 'Change back: eating all meals',
+    notMe: 'Not {name}? Switch guest', saved: 'Saved ✓', thanks: 'Saved. Thank you!',
+    cantOpen: "Can't open meals", linkMissing: 'Meal link missing',
+    openFull: "Please open the full link from your PG's WhatsApp group.",
+    tips: [
+      ['🍛', 'Food cooked but not eaten goes to the bin. Switching off a meal you will skip takes just 2 seconds.'],
+      ['🌙', 'Eating out tomorrow? Tell the kitchen tonight so they cook just the right amount.'],
+      ['🏠', "Going home this weekend? Switch off those days' meals in advance. No plate wasted."],
+      ['👩‍🍳', "Our cook plans tomorrow's food from your replies tonight. Your one tap really counts."],
+      ['🌱', 'Less waste means fresher food for everyone. Thank you for keeping your meals updated!'],
+      ['⏰', 'Plans changed? You can update any meal until the evening before.'],
+      ['🙏', 'Every meal you skip without telling us is a full plate thrown away. Please let us know.'],
+      ['🥗', 'Accurate counts help the kitchen spend on better ingredients instead of wasted food.'],
+      ['🍚', 'A little rice or dal thrown away every day adds up to many kilos a month. Help us cook just right.'],
+      ['💚', 'When everyone updates their meals, nobody goes hungry and nothing goes to waste.'],
+    ],
+  },
+  te: {
+    pass_ok: 'భోజనం ఆనందించండి!', pass_already: 'ఇప్పటికే {t} కి వడ్డించారు', pass_nomeal: 'ఇప్పుడు భోజనం వడ్డించడం లేదు.', pass_notguest: 'ఈ ఫోన్ నమోదు కాలేదు. ఈ PG అతిథులకు మాత్రమే భోజనం. అతిథులు: కింద లాగిన్ అవ్వండి.', pass_back: 'నా భోజనాలకు తిరిగి', pass_skipped: 'మీరు ఈ భోజనాన్ని ఆపివేశారు - తదుపరిసారి అప్‌డేట్ చేయండి.', 
+    phoneVerified: 'మీ ఫోన్ ధృవీకరించబడింది ✓', reportOff: 'మీకు ఫిర్యాదు చేసే సౌకర్యం ఆపివేయబడింది. దయచేసి మీ PG మేనేజర్‌తో మాట్లాడండి.',
+    needLink: 'సమస్య తెలియజేయడానికి, మీ PG మేనేజర్ WhatsApp లో పంపిన మీ వ్యక్తిగత లింక్‌ను తెరవండి. మీకు రాకపోతే, పంపమని వారిని అడగండి.',
+    useLinkTitle: 'మీ వ్యక్తిగత లింక్ తెరవండి', useLink: 'దయచేసి మీ PG మేనేజర్ WhatsApp లో పంపిన మీ వ్యక్తిగత లింక్‌ను తెరవండి. మీకు రాకపోతే, పంపమని వారిని అడగండి.',
+    addPhoto: '📷 ఫోటో జోడించండి (ఐచ్ఛికం)', photoAdded: 'ఫోటో జోడించారు ✓', removePhoto: 'ఫోటో తీసివేయండి',
+    photoFail: 'ఫోటో పంపలేకపోయాం. మళ్లీ ప్రయత్నించండి లేదా ఫోటో లేకుండా పంపండి.', st_not_real: 'నిజమైన సమస్య కాదు',
+    probTitle: 'మీ గదిలో సమస్య ఉందా?', probHelp: 'PG మేనేజర్‌కు తెలియజేయండి. ఏమి సమస్యో ఎంచుకోండి:',
+    cat_leak: 'నీటి లీకేజీ', cat_hot_water: 'వేడి నీళ్లు రావట్లేదు', cat_no_water: 'నీళ్లు రావట్లేదు', cat_electrical: 'లైట్ / ఫ్యాన్ / ప్లగ్',
+    cat_cleaning: 'గది శుభ్రం చేయలేదు', cat_hygiene: 'పరిశుభ్రత / బాత్రూమ్', cat_pests: 'పురుగులు / ఎలుకలు',
+    cat_furniture: 'బెడ్ / అల్మారా / ఫర్నిచర్', cat_wifi: 'వై-ఫై', cat_other: 'ఇతర',
+    probNote: 'చిన్న వివరణ రాయండి (ఐచ్ఛికం)', probSend: 'PG మేనేజర్‌కు పంపండి', probChoose: 'ఏమి సమస్యో ఎంచుకోండి.',
+    probSent: 'పంపాం. ధన్యవాదాలు!', yourReports: 'మీ ఫిర్యాదులు',
+    st_open: 'పెండింగ్', st_in_progress: 'సరిచేస్తున్నారు', st_fixed: 'సరిచేశారు',
+    welcome: 'స్వాగతం 🙏',
+    firstTime: 'ఈ ఫోన్‌లో మొదటిసారా? మీరు ఎవరో చెప్పండి. తర్వాతి సారి మేము గుర్తుంచుకుంటాం.',
+    yourRoom: 'మీ గది', chooseRoom: 'గది ఎంచుకోండి', yourBed: 'మీ బెడ్', chooseRoomFirst: 'ముందు గది ఎంచుకోండి',
+    last4: 'మీ ఫోన్ నంబర్ చివరి 4 అంకెలు', cont: 'కొనసాగించండి', checking: 'తనిఖీ చేస్తున్నాం…',
+    phoneSaved: 'మీ ఫోన్ నంబర్ PG మేనేజర్ వద్ద నమోదై ఉండాలి.',
+    fillAll: 'గది, బెడ్ ఎంచుకుని, 4 అంకెలు నమోదు చేయండి.',
+    ground: 'గ్రౌండ్ ఫ్లోర్', floor: 'ఫ్లోర్ {n}',
+    hi: 'నమస్తే {name} 👋', room: 'గది',
+    howTo: 'మీరు తినని భోజనాన్ని ముందు రోజు సాయంత్రం {cutoff} లోపు ఆఫ్ చేయండి.',
+    todaysNote: 'నేటి సందేశం', ownerNote: 'మీ PG నుండి సందేశం',
+    today: 'ఈరోజు', locked: 'లాక్ అయింది', notStaying: 'ఇక్కడ లేరు', replied: 'స్పందించారు ✓', notReplied: 'ఇంకా స్పందించలేదు',
+    breakfast: 'టిఫిన్', lunch: 'మధ్యాహ్న భోజనం', dinner: 'రాత్రి భోజనం', eating: 'తింటాను', skipping: 'తినను',
+    allTap: 'నొక్కండి: అన్ని భోజనాలు తింటాను', allDone: '✓ అన్ని భోజనాలు తింటాను', allBack: 'మార్చండి: అన్ని భోజనాలు తింటాను',
+    notMe: 'మీరు {name} కాదా? వేరే గెస్ట్ ఎంచుకోండి', saved: 'సేవ్ అయింది ✓', thanks: 'సేవ్ అయింది. ధన్యవాదాలు!',
+    cantOpen: 'భోజనం పేజీ తెరవలేకపోయాం', linkMissing: 'లింక్ అసంపూర్ణంగా ఉంది',
+    openFull: 'దయచేసి మీ PG WhatsApp గ్రూప్ నుండి పూర్తి లింక్ తెరవండి.',
+    tips: [
+      ['🍛', 'వండిన భోజనం ఎవరూ తినకపోతే చెత్తలోకి పోతుంది. మీరు తినని భోజనాన్ని ఆఫ్ చేయడానికి కేవలం 2 సెకన్లు చాలు.'],
+      ['🌙', 'రేపు బయట తింటున్నారా? ఈ రాత్రే కిచెన్‌కు చెప్పండి, అవసరమైనంతే వండుతారు.'],
+      ['🏠', 'ఈ వీకెండ్ ఇంటికి వెళ్తున్నారా? ఆ రోజుల భోజనాన్ని ముందుగానే ఆఫ్ చేయండి. ఒక్క ప్లేట్ కూడా వృథా కాదు.'],
+      ['👩‍🍳', 'మా వంటవారు ఈ రాత్రి మీ సమాధానాల ఆధారంగా రేపటి వంట ప్లాన్ చేస్తారు. మీ ఒక్క టాప్ చాలా ముఖ్యం.'],
+      ['🌱', 'తక్కువ వృథా అంటే అందరికీ తాజా భోజనం. మీ భోజన వివరాలు అప్‌డేట్ చేస్తున్నందుకు ధన్యవాదాలు!'],
+      ['⏰', 'ప్లాన్ మారిందా? ముందు రోజు సాయంత్రం వరకు ఏ భోజనాన్నైనా మార్చవచ్చు.'],
+      ['🙏', 'చెప్పకుండా వదిలేసిన ప్రతి భోజనం ఒక పూర్తి ప్లేట్ వృథా. దయచేసి మాకు తెలియజేయండి.'],
+      ['🥗', 'సరైన లెక్కతో కిచెన్ డబ్బు వృథా భోజనంపై కాకుండా మంచి సరుకులపై ఖర్చవుతుంది.'],
+      ['🍚', 'రోజూ కొంచెం అన్నం లేదా పప్పు పారేస్తే, నెలకు ఎన్నో కిలోలు అవుతుంది. సరిపడా వండటానికి సహాయం చేయండి.'],
+      ['💚', 'అందరూ భోజన వివరాలు అప్‌డేట్ చేస్తే, ఎవరూ ఆకలితో ఉండరు, ఏదీ వృథా కాదు.'],
+    ],
+  },
+  kn: {
+    pass_ok: 'ಊಟವನ್ನು ಆನಂದಿಸಿ!', pass_already: 'ಈಗಾಗಲೇ {t} ಕ್ಕೆ ಬಡಿಸಲಾಗಿದೆ', pass_nomeal: 'ಈಗ ಊಟ ಬಡಿಸುತ್ತಿಲ್ಲ.', pass_notguest: 'ಈ ಫೋನ್ ನೋಂದಾಯಿಸಿಲ್ಲ. ಈ PG ಅತಿಥಿಗಳಿಗೆ ಮಾತ್ರ ಊಟ. ಅತಿಥಿಗಳು: ಕೆಳಗೆ ಲಾಗಿನ್ ಆಗಿ.', pass_back: 'ನನ್ನ ಊಟಕ್ಕೆ ಹಿಂತಿರುಗಿ', pass_skipped: 'ನೀವು ಈ ಊಟವನ್ನು ಆಫ್ ಮಾಡಿದ್ದಿರಿ - ಮುಂದಿನ ಬಾರಿ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ.', 
+    phoneVerified: 'ನಿಮ್ಮ ಫೋನ್ ದೃಢೀಕರಿಸಲಾಗಿದೆ ✓', reportOff: 'ನಿಮಗೆ ದೂರು ನೀಡುವುದನ್ನು ನಿಲ್ಲಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಜೊತೆ ಮಾತನಾಡಿ.',
+    needLink: 'ಸಮಸ್ಯೆ ತಿಳಿಸಲು, ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ WhatsApp ನಲ್ಲಿ ಕಳುಹಿಸಿದ ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಲಿಂಕ್ ತೆರೆಯಿರಿ. ಬಂದಿಲ್ಲದಿದ್ದರೆ, ಕಳುಹಿಸಲು ಅವರನ್ನು ಕೇಳಿ.',
+    useLinkTitle: 'ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಲಿಂಕ್ ತೆರೆಯಿರಿ', useLink: 'ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ WhatsApp ನಲ್ಲಿ ಕಳುಹಿಸಿದ ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಲಿಂಕ್ ತೆರೆಯಿರಿ. ಬಂದಿಲ್ಲದಿದ್ದರೆ, ಕಳುಹಿಸಲು ಅವರನ್ನು ಕೇಳಿ.',
+    addPhoto: '📷 ಫೋಟೋ ಸೇರಿಸಿ (ಐಚ್ಛಿಕ)', photoAdded: 'ಫೋಟೋ ಸೇರಿಸಲಾಗಿದೆ ✓', removePhoto: 'ಫೋಟೋ ತೆಗೆದುಹಾಕಿ',
+    photoFail: 'ಫೋಟೋ ಕಳುಹಿಸಲು ಆಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಫೋಟೋ ಇಲ್ಲದೆ ಕಳುಹಿಸಿ.', st_not_real: 'ನಿಜವಾದ ಸಮಸ್ಯೆ ಅಲ್ಲ',
+    probTitle: 'ನಿಮ್ಮ ಕೋಣೆಯಲ್ಲಿ ಸಮಸ್ಯೆ ಇದೆಯೇ?', probHelp: 'PG ಮ್ಯಾನೇಜರ್‌ಗೆ ತಿಳಿಸಿ. ಏನು ಸಮಸ್ಯೆ ಎಂದು ಆಯ್ಕೆಮಾಡಿ:',
+    cat_leak: 'ನೀರು ಸೋರಿಕೆ', cat_hot_water: 'ಬಿಸಿ ನೀರು ಬರುತ್ತಿಲ್ಲ', cat_no_water: 'ನೀರು ಬರುತ್ತಿಲ್ಲ', cat_electrical: 'ಲೈಟ್ / ಫ್ಯಾನ್ / ಪ್ಲಗ್',
+    cat_cleaning: 'ಕೋಣೆ ಸ್ವಚ್ಛಗೊಳಿಸಿಲ್ಲ', cat_hygiene: 'ಸ್ವಚ್ಛತೆ / ಬಾತ್‌ರೂಮ್', cat_pests: 'ಕೀಟಗಳು / ಇಲಿಗಳು',
+    cat_furniture: 'ಹಾಸಿಗೆ / ಬೀರು / ಪೀಠೋಪಕರಣ', cat_wifi: 'ವೈ-ಫೈ', cat_other: 'ಇತರೆ',
+    probNote: 'ಸಣ್ಣ ವಿವರ ಬರೆಯಿರಿ (ಐಚ್ಛಿಕ)', probSend: 'PG ಮ್ಯಾನೇಜರ್‌ಗೆ ಕಳುಹಿಸಿ', probChoose: 'ಏನು ಸಮಸ್ಯೆ ಎಂದು ಆಯ್ಕೆಮಾಡಿ.',
+    probSent: 'ಕಳುಹಿಸಲಾಗಿದೆ. ಧನ್ಯವಾದಗಳು!', yourReports: 'ನಿಮ್ಮ ದೂರುಗಳು',
+    st_open: 'ಬಾಕಿ ಇದೆ', st_in_progress: 'ಸರಿಪಡಿಸಲಾಗುತ್ತಿದೆ', st_fixed: 'ಸರಿಪಡಿಸಲಾಗಿದೆ',
+    welcome: 'ಸ್ವಾಗತ 🙏',
+    firstTime: 'ಈ ಫೋನ್‌ನಲ್ಲಿ ಮೊದಲ ಬಾರಿಯೇ? ನೀವು ಯಾರೆಂದು ತಿಳಿಸಿ. ಮುಂದಿನ ಬಾರಿ ನಾವು ನೆನಪಿಟ್ಟುಕೊಳ್ಳುತ್ತೇವೆ.',
+    yourRoom: 'ನಿಮ್ಮ ಕೊಠಡಿ', chooseRoom: 'ಕೊಠಡಿ ಆಯ್ಕೆಮಾಡಿ', yourBed: 'ನಿಮ್ಮ ಬೆಡ್', chooseRoomFirst: 'ಮೊದಲು ಕೊಠಡಿ ಆಯ್ಕೆಮಾಡಿ',
+    last4: 'ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯ ಕೊನೆಯ 4 ಅಂಕೆಗಳು', cont: 'ಮುಂದುವರಿಸಿ', checking: 'ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…',
+    phoneSaved: 'ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆ PG ಮ್ಯಾನೇಜರ್ ಬಳಿ ದಾಖಲಾಗಿರಬೇಕು.',
+    fillAll: 'ಕೊಠಡಿ ಮತ್ತು ಬೆಡ್ ಆಯ್ಕೆಮಾಡಿ, 4 ಅಂಕೆಗಳನ್ನು ನಮೂದಿಸಿ.',
+    ground: 'ನೆಲ ಮಹಡಿ', floor: 'ಮಹಡಿ {n}',
+    hi: 'ನಮಸ್ಕಾರ {name} 👋', room: 'ಕೊಠಡಿ',
+    howTo: 'ನೀವು ಬಿಡುವ ಊಟವನ್ನು ಹಿಂದಿನ ದಿನ ಸಂಜೆ {cutoff} ಒಳಗೆ ಆಫ್ ಮಾಡಿ.',
+    todaysNote: 'ಇಂದಿನ ಸಂದೇಶ', ownerNote: 'ನಿಮ್ಮ PG ಯಿಂದ ಸಂದೇಶ',
+    today: 'ಇಂದು', locked: 'ಲಾಕ್ ಆಗಿದೆ', notStaying: 'ಇಲ್ಲಿ ಇರುವುದಿಲ್ಲ', replied: 'ಉತ್ತರಿಸಿದ್ದೀರಿ ✓', notReplied: 'ಇನ್ನೂ ಉತ್ತರಿಸಿಲ್ಲ',
+    breakfast: 'ತಿಂಡಿ', lunch: 'ಮಧ್ಯಾಹ್ನದ ಊಟ', dinner: 'ರಾತ್ರಿ ಊಟ', eating: 'ಬೇಕು', skipping: 'ಬೇಡ',
+    allTap: 'ಒತ್ತಿ: ಎಲ್ಲಾ ಊಟ ಬೇಕು', allDone: '✓ ಎಲ್ಲಾ ಊಟ ಬೇಕು', allBack: 'ಬದಲಿಸಿ: ಎಲ್ಲಾ ಊಟ ಬೇಕು',
+    notMe: 'ನೀವು {name} ಅಲ್ಲವೇ? ಬೇರೆ ಗೆಸ್ಟ್ ಆಯ್ಕೆಮಾಡಿ', saved: 'ಉಳಿಸಲಾಗಿದೆ ✓', thanks: 'ಉಳಿಸಲಾಗಿದೆ. ಧನ್ಯವಾದಗಳು!',
+    cantOpen: 'ಊಟದ ಪುಟ ತೆರೆಯಲಾಗಲಿಲ್ಲ', linkMissing: 'ಲಿಂಕ್ ಅಪೂರ್ಣವಾಗಿದೆ',
+    openFull: 'ದಯವಿಟ್ಟು ನಿಮ್ಮ PG WhatsApp ಗುಂಪಿನಿಂದ ಪೂರ್ಣ ಲಿಂಕ್ ತೆರೆಯಿರಿ.',
+    tips: [
+      ['🍛', 'ಬೇಯಿಸಿದ ಆಹಾರವನ್ನು ಯಾರೂ ತಿನ್ನದಿದ್ದರೆ ಕಸಕ್ಕೆ ಹೋಗುತ್ತದೆ. ನೀವು ಬಿಡುವ ಊಟವನ್ನು ಆಫ್ ಮಾಡಲು ಕೇವಲ 2 ಸೆಕೆಂಡು ಸಾಕು.'],
+      ['🌙', 'ನಾಳೆ ಹೊರಗೆ ಊಟ ಮಾಡುತ್ತೀರಾ? ಇಂದು ರಾತ್ರಿಯೇ ಅಡುಗೆಮನೆಗೆ ತಿಳಿಸಿ, ಬೇಕಾದಷ್ಟೇ ಅಡುಗೆ ಮಾಡುತ್ತಾರೆ.'],
+      ['🏠', 'ಈ ವೀಕೆಂಡ್ ಊರಿಗೆ ಹೋಗುತ್ತಿದ್ದೀರಾ? ಆ ದಿನಗಳ ಊಟವನ್ನು ಮುಂಚಿತವಾಗಿ ಆಫ್ ಮಾಡಿ. ಒಂದೂ ತಟ್ಟೆ ವ್ಯರ್ಥವಾಗುವುದಿಲ್ಲ.'],
+      ['👩‍🍳', 'ನಮ್ಮ ಅಡುಗೆಯವರು ಇಂದು ರಾತ್ರಿಯ ನಿಮ್ಮ ಉತ್ತರಗಳ ಆಧಾರದ ಮೇಲೆ ನಾಳೆಯ ಅಡುಗೆ ಯೋಜಿಸುತ್ತಾರೆ. ನಿಮ್ಮ ಒಂದು ಟ್ಯಾಪ್ ತುಂಬಾ ಮುಖ್ಯ.'],
+      ['🌱', 'ಕಡಿಮೆ ವ್ಯರ್ಥ ಎಂದರೆ ಎಲ್ಲರಿಗೂ ತಾಜಾ ಆಹಾರ. ನಿಮ್ಮ ಊಟದ ವಿವರಗಳನ್ನು ಅಪ್‌ಡೇಟ್ ಮಾಡುತ್ತಿರುವುದಕ್ಕೆ ಧನ್ಯವಾದಗಳು!'],
+      ['⏰', 'ಯೋಜನೆ ಬದಲಾಯಿತೇ? ಹಿಂದಿನ ದಿನ ಸಂಜೆಯವರೆಗೆ ಯಾವುದೇ ಊಟವನ್ನು ಬದಲಿಸಬಹುದು.'],
+      ['🙏', 'ತಿಳಿಸದೆ ಬಿಟ್ಟ ಪ್ರತಿಯೊಂದು ಊಟವೂ ಒಂದು ಪೂರ್ಣ ತಟ್ಟೆಯ ವ್ಯರ್ಥ. ದಯವಿಟ್ಟು ನಮಗೆ ತಿಳಿಸಿ.'],
+      ['🥗', 'ಸರಿಯಾದ ಲೆಕ್ಕದಿಂದ ಅಡುಗೆಮನೆಯ ಹಣ ವ್ಯರ್ಥ ಆಹಾರಕ್ಕಲ್ಲ, ಉತ್ತಮ ಸಾಮಗ್ರಿಗಳಿಗೆ ಖರ್ಚಾಗುತ್ತದೆ.'],
+      ['🍚', 'ಪ್ರತಿದಿನ ಸ್ವಲ್ಪ ಅನ್ನ ಅಥವಾ ಬೇಳೆ ಎಸೆದರೆ, ತಿಂಗಳಿಗೆ ಹಲವು ಕಿಲೋ ಆಗುತ್ತದೆ. ಸರಿಯಾದ ಪ್ರಮಾಣದಲ್ಲಿ ಅಡುಗೆ ಮಾಡಲು ಸಹಾಯ ಮಾಡಿ.'],
+      ['💚', 'ಎಲ್ಲರೂ ತಮ್ಮ ಊಟದ ವಿವರ ಅಪ್‌ಡೇಟ್ ಮಾಡಿದರೆ, ಯಾರೂ ಹಸಿದಿರುವುದಿಲ್ಲ, ಏನೂ ವ್ಯರ್ಥವಾಗುವುದಿಲ್ಲ.'],
+    ],
+  },
+  hi: {
+    pass_ok: 'भोजन का आनंद लें!', pass_already: 'पहले ही {t} बजे परोसा गया', pass_nomeal: 'अभी भोजन नहीं परोसा जा रहा है।', pass_notguest: 'यह फ़ोन पंजीकृत नहीं है। केवल इस PG के गेस्ट को भोजन मिलता है। गेस्ट: नीचे लॉगिन करें।', pass_back: 'मेरे भोजन पर वापस', pass_skipped: 'आपने यह भोजन बंद किया था - अगली बार अपडेट करें।', 
+    phoneVerified: 'आपका फ़ोन सत्यापित हो गया ✓', reportOff: 'आपके लिए शिकायत दर्ज करना बंद है। कृपया अपने PG मैनेजर से बात करें।',
+    needLink: 'समस्या बताने के लिए, अपने PG मैनेजर द्वारा WhatsApp पर भेजा गया अपना निजी लिंक खोलें। अगर नहीं मिला, तो उनसे भेजने को कहें।',
+    useLinkTitle: 'अपना निजी लिंक खोलें', useLink: 'कृपया अपने PG मैनेजर द्वारा WhatsApp पर भेजा गया अपना निजी लिंक खोलें। अगर नहीं मिला, तो उनसे भेजने को कहें।',
+    addPhoto: '📷 फ़ोटो जोड़ें (वैकल्पिक)', photoAdded: 'फ़ोटो जुड़ गई ✓', removePhoto: 'फ़ोटो हटाएँ',
+    photoFail: 'फ़ोटो नहीं भेजी जा सकी। दोबारा कोशिश करें या बिना फ़ोटो भेजें।', st_not_real: 'असली समस्या नहीं',
+    probTitle: 'आपके कमरे में कोई समस्या?', probHelp: 'PG मैनेजर को बताइए। क्या खराब है, चुनें:',
+    cat_leak: 'पानी का रिसाव', cat_hot_water: 'गरम पानी नहीं', cat_no_water: 'पानी नहीं आ रहा', cat_electrical: 'लाइट / पंखा / प्लग',
+    cat_cleaning: 'कमरे की सफ़ाई नहीं हुई', cat_hygiene: 'साफ़-सफ़ाई / बाथरूम', cat_pests: 'कीड़े / चूहे',
+    cat_furniture: 'बेड / अलमारी / फ़र्नीचर', cat_wifi: 'वाई-फ़ाई', cat_other: 'अन्य',
+    probNote: 'छोटा विवरण लिखें (वैकल्पिक)', probSend: 'PG मैनेजर को भेजें', probChoose: 'क्या खराब है, चुनें।',
+    probSent: 'भेज दिया। धन्यवाद!', yourReports: 'आपकी शिकायतें',
+    st_open: 'बाकी', st_in_progress: 'ठीक किया जा रहा है', st_fixed: 'ठीक हो गया',
+    welcome: 'स्वागत है 🙏',
+    firstTime: 'इस फ़ोन पर पहली बार? बताइए आप कौन हैं। अगली बार हम आपको याद रखेंगे।',
+    yourRoom: 'आपका कमरा', chooseRoom: 'कमरा चुनें', yourBed: 'आपका बेड', chooseRoomFirst: 'पहले कमरा चुनें',
+    last4: 'आपके फ़ोन नंबर के आख़िरी 4 अंक', cont: 'आगे बढ़ें', checking: 'जाँच हो रही है…',
+    phoneSaved: 'आपका फ़ोन नंबर PG मैनेजर के पास दर्ज होना चाहिए।',
+    fillAll: 'कमरा और बेड चुनें, और 4 अंक डालें।',
+    ground: 'ग्राउंड फ़्लोर', floor: 'फ़्लोर {n}',
+    hi: 'नमस्ते {name} 👋', room: 'कमरा',
+    howTo: 'जो खाना आप नहीं खाएँगे, उसे एक दिन पहले शाम {cutoff} तक बंद कर दें।',
+    todaysNote: 'आज का संदेश', ownerNote: 'आपके PG की ओर से संदेश',
+    today: 'आज', locked: 'बंद', notStaying: 'यहाँ नहीं हैं', replied: 'जवाब दिया ✓', notReplied: 'अभी जवाब नहीं दिया',
+    breakfast: 'नाश्ता', lunch: 'दोपहर का खाना', dinner: 'रात का खाना', eating: 'खाएँगे', skipping: 'नहीं खाएँगे',
+    allTap: 'टैप करें: सभी भोजन चाहिए', allDone: '✓ सभी भोजन चाहिए', allBack: 'बदलें: सभी भोजन चाहिए',
+    notMe: '{name} नहीं हैं? दूसरा गेस्ट चुनें', saved: 'सेव हो गया ✓', thanks: 'सेव हो गया। धन्यवाद!',
+    cantOpen: 'भोजन पेज नहीं खुला', linkMissing: 'लिंक अधूरा है',
+    openFull: 'कृपया अपने PG के WhatsApp ग्रुप से पूरा लिंक खोलें।',
+    tips: [
+      ['🍛', 'बना हुआ खाना जो कोई नहीं खाता, कूड़े में जाता है। जो भोजन आप नहीं खाएँगे, उसे बंद करने में सिर्फ़ 2 सेकंड लगते हैं।'],
+      ['🌙', 'कल बाहर खाना है? आज रात ही किचन को बता दें, ताकि उतना ही खाना बने जितना चाहिए।'],
+      ['🏠', 'इस वीकेंड घर जा रहे हैं? उन दिनों का खाना पहले से बंद कर दें। एक भी थाली बर्बाद नहीं होगी।'],
+      ['👩‍🍳', 'हमारे कुक आज रात आपके जवाब देखकर कल का खाना तय करते हैं। आपका एक टैप सच में मायने रखता है।'],
+      ['🌱', 'कम बर्बादी यानी सबके लिए ताज़ा खाना। अपना भोजन अपडेट रखने के लिए धन्यवाद!'],
+      ['⏰', 'प्लान बदल गया? आप एक दिन पहले शाम तक कोई भी भोजन बदल सकते हैं।'],
+      ['🙏', 'बिना बताए छोड़ा गया हर भोजन एक पूरी थाली की बर्बादी है। कृपया हमें बताएँ।'],
+      ['🥗', 'सही गिनती से किचन का पैसा बर्बाद खाने पर नहीं, बेहतर सामग्री पर खर्च होता है।'],
+      ['🍚', 'रोज़ थोड़ा-सा चावल या दाल फेंकना, महीने में कई किलो बन जाता है। सही मात्रा में खाना बनाने में मदद करें।'],
+      ['💚', 'जब सब अपना भोजन अपडेट करते हैं, तो न कोई भूखा रहता है, न खाना बर्बाद होता है।'],
+    ],
+  },
+};
+
+// Server messages come in English: show them in the chosen language.
+const SRV = {"Choose what is wrong.": {"te": "ఏమి సమస్యో ఎంచుకోండి.", "kn": "ಏನು ಸಮಸ್ಯೆ ಎಂದು ಆಯ್ಕೆ ಮಾಡಿ.", "hi": "क्या समस्या है, चुनें।"}, "Enter the last 4 digits of your phone number.": {"te": "మీ ఫోన్ నంబర్ చివరి 4 అంకెలు నమోదు చేయండి.", "kn": "ನಿಮ್ಮ ಫೋನ್ ನಂಬರ್‌ನ ಕೊನೆಯ 4 ಅಂಕಿಗಳನ್ನು ನಮೂದಿಸಿ.", "hi": "अपने फ़ोन नंबर के आखिरी 4 अंक डालें।"}, "No guest found in this bed. Check the room and bed.": {"te": "ఈ బెడ్‌లో ఎవరూ నమోదు కాలేదు. గది, బెడ్ సరిచూడండి.", "kn": "ಈ ಬೆಡ್‌ನಲ್ಲಿ ಯಾರೂ ನೋಂದಾಯಿಸಿಲ್ಲ. ರೂಮ್ ಮತ್ತು ಬೆಡ್ ಪರಿಶೀಲಿಸಿ.", "hi": "इस बेड पर कोई गेस्ट नहीं मिला। कमरा और बेड जाँचें।"}, "Photo not found. Please add it again.": {"te": "ఫోటో దొరకలేదు. దయచేసి మళ్లీ జోడించండి.", "kn": "ಫೋಟೋ ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಸೇರಿಸಿ.", "hi": "फ़ोटो नहीं मिली। कृपया दोबारा जोड़ें।"}, "Please choose your room and bed.": {"te": "దయచేసి మీ గది, బెడ్ ఎంచుకోండి.", "kn": "ದಯವಿಟ್ಟು ನಿಮ್ಮ ರೂಮ್ ಮತ್ತು ಬೆಡ್ ಆಯ್ಕೆ ಮಾಡಿ.", "hi": "कृपया अपना कमरा और बेड चुनें।"}, "Please open the meal link again and verify your room.": {"te": "దయచేసి మీల్ లింక్ మళ్లీ తెరిచి మీ గదిని నిర్ధారించండి.", "kn": "ದಯವಿಟ್ಟು ಊಟದ ಲಿಂಕ್ ಮತ್ತೆ ತೆರೆದು ನಿಮ್ಮ ರೂಮ್ ದೃಢೀಕರಿಸಿ.", "hi": "कृपया भोजन लिंक दोबारा खोलें और अपना कमरा सत्यापित करें।"}, "Reporting is turned off for you. Please talk to your PG manager.": {"te": "మీకు ఫిర్యాదు చేసే సౌకర్యం ఆపివేయబడింది. దయచేసి మీ PG మేనేజర్‌తో మాట్లాడండి.", "kn": "ನಿಮಗೆ ದೂರು ನೀಡುವುದನ್ನು ನಿಲ್ಲಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಜೊತೆ ಮಾತನಾಡಿ.", "hi": "आपके लिए शिकायत दर्ज करना बंद है। कृपया अपने PG मैनेजर से बात करें।"}, "Room, bed and phone digits do not match. Please check and try again.": {"te": "గది, బెడ్, ఫోన్ అంకెలు సరిపోలలేదు. దయచేసి సరిచూసి మళ్లీ ప్రయత్నించండి.", "kn": "ರೂಮ್, ಬೆಡ್ ಮತ್ತು ಫೋನ್ ಅಂಕಿಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ. ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.", "hi": "कमरा, बेड और फ़ोन के अंक मेल नहीं खाते। कृपया जाँचकर दोबारा कोशिश करें।"}, "This bed is paused for safety after many wrong tries today. Please ask your PG manager.": {"te": "ఈరోజు చాలా తప్పు ప్రయత్నాల వల్ల భద్రత కోసం ఈ బెడ్ ఆపివేయబడింది. దయచేసి మీ PG మేనేజర్‌ను అడగండి.", "kn": "ಇಂದು ಹಲವು ತಪ್ಪು ಪ್ರಯತ್ನಗಳಿಂದ ಸುರಕ್ಷತೆಗಾಗಿ ಈ ಬೆಡ್ ನಿಲ್ಲಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಅವರನ್ನು ಕೇಳಿ.", "hi": "आज कई गलत कोशिशों के कारण सुरक्षा के लिए यह बेड रोका गया है। कृपया अपने PG मैनेजर से पूछें।"}, "This link is not valid. Ask your PG manager to send you a new link.": {"te": "ఈ లింక్ సరైనది కాదు. కొత్త లింక్ పంపమని మీ PG మేనేజర్‌ను అడగండి.", "kn": "ಈ ಲಿಂಕ್ ಸರಿಯಾಗಿಲ್ಲ. ಹೊಸ ಲಿಂಕ್ ಕಳುಹಿಸಲು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಅವರನ್ನು ಕೇಳಿ.", "hi": "यह लिंक सही नहीं है। अपने PG मैनेजर से नया लिंक भेजने को कहें।"}, "This meal link is not valid. Ask your PG manager for the new link.": {"te": "ఈ మీల్ లింక్ సరైనది కాదు. కొత్త లింక్ కోసం మీ PG మేనేజర్‌ను అడగండి.", "kn": "ಈ ಊಟದ ಲಿಂಕ್ ಸರಿಯಾಗಿಲ್ಲ. ಹೊಸ ಲಿಂಕ್‌ಗಾಗಿ ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಅವರನ್ನು ಕೇಳಿ.", "hi": "यह भोजन लिंक सही नहीं है। नए लिंक के लिए अपने PG मैनेजर से पूछें।"}, "To report a problem, open the personal link your PG manager sent you on WhatsApp.": {"te": "సమస్య తెలియజేయడానికి, మీ PG మేనేజర్ WhatsApp లో పంపిన మీ వ్యక్తిగత లింక్‌ను తెరవండి.", "kn": "ಸಮಸ್ಯೆ ತಿಳಿಸಲು, ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ WhatsApp ನಲ್ಲಿ ಕಳುಹಿಸಿದ ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಲಿಂಕ್ ತೆರೆಯಿರಿ.", "hi": "समस्या बताने के लिए, अपने PG मैनेजर द्वारा WhatsApp पर भेजा गया अपना निजी लिंक खोलें।"}, "Too many wrong tries from this phone. Please try again after an hour.": {"te": "ఈ ఫోన్ నుండి చాలా తప్పు ప్రయత్నాలు. దయచేసి ఒక గంట తర్వాత ప్రయత్నించండి.", "kn": "ಈ ಫೋನ್‌ನಿಂದ ಹಲವು ತಪ್ಪು ಪ್ರಯತ್ನಗಳು. ದಯವಿಟ್ಟು ಒಂದು ಗಂಟೆಯ ನಂತರ ಪ್ರಯತ್ನಿಸಿ.", "hi": "इस फ़ोन से बहुत सारी गलत कोशिशें हुईं। कृपया एक घंटे बाद कोशिश करें।"}, "You are not staying in the PG now.": {"te": "మీరు ఇప్పుడు PG లో ఉండటం లేదు.", "kn": "ನೀವು ಈಗ PG ಯಲ್ಲಿ ಇಲ್ಲ.", "hi": "आप अभी PG में नहीं रह रहे हैं।"}, "You are not staying in this PG now.": {"te": "మీరు ఇప్పుడు ఈ PG లో ఉండటం లేదు.", "kn": "ನೀವು ಈಗ ಈ PG ಯಲ್ಲಿ ಇಲ್ಲ.", "hi": "आप अभी इस PG में नहीं रह रहे हैं।"}, "You are not staying on this day.": {"te": "ఈ రోజు మీరు PG లో ఉండటం లేదు.", "kn": "ಈ ದಿನ ನೀವು PG ಯಲ್ಲಿ ಇರುವುದಿಲ್ಲ.", "hi": "इस दिन आप PG में नहीं रह रहे हैं।"}, "You can only change meals for the coming days.": {"te": "రాబోయే రోజుల భోజనం మాత్రమే మార్చగలరు.", "kn": "ಮುಂದಿನ ದಿನಗಳ ಊಟವನ್ನು ಮಾತ್ರ ಬದಲಾಯಿಸಬಹುದು.", "hi": "आप केवल आने वाले दिनों का भोजन बदल सकते हैं।"}, "You have sent 5 reports today. Please talk to your PG manager.": {"te": "ఈరోజు మీరు 5 ఫిర్యాదులు పంపారు. దయచేసి మీ PG మేనేజర్‌తో మాట్లాడండి.", "kn": "ಇಂದು ನೀವು 5 ದೂರುಗಳನ್ನು ಕಳುಹಿಸಿದ್ದೀರಿ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಜೊತೆ ಮಾತನಾಡಿ.", "hi": "आज आप 5 शिकायतें भेज चुके हैं। कृपया अपने PG मैनेजर से बात करें।"}, "Your phone number is not saved yet. Please ask your PG manager to add it.": {"te": "మీ ఫోన్ నంబర్ ఇంకా నమోదు కాలేదు. దయచేసి జోడించమని మీ PG మేనేజర్‌ను అడగండి.", "kn": "ನಿಮ್ಮ ಫೋನ್ ನಂಬರ್ ಇನ್ನೂ ಉಳಿಸಿಲ್ಲ. ಸೇರಿಸಲು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಅವರನ್ನು ಕೇಳಿ.", "hi": "आपका फ़ोन नंबर अभी सेव नहीं है। कृपया अपने PG मैनेजर से जोड़ने को कहें।"}, "New logins on this meal link are paused for safety today (too many wrong tries). Phones already logged in still work. Please ask your PG manager.": {"te": "చాలా తప్పు ప్రయత్నాల వల్ల ఈరోజు భద్రత కోసం ఈ మీల్ లింక్‌లో కొత్త లాగిన్‌లు ఆపివేయబడ్డాయి. ఇప్పటికే లాగిన్ అయిన ఫోన్లు పనిచేస్తాయి. దయచేసి మీ PG మేనేజర్‌ను అడగండి.", "kn": "ಹಲವು ತಪ್ಪು ಪ್ರಯತ್ನಗಳಿಂದ ಇಂದು ಸುರಕ್ಷತೆಗಾಗಿ ಈ ಊಟದ ಲಿಂಕ್‌ನಲ್ಲಿ ಹೊಸ ಲಾಗಿನ್ ನಿಲ್ಲಿಸಲಾಗಿದೆ. ಈಗಾಗಲೇ ಲಾಗಿನ್ ಆದ ಫೋನ್‌ಗಳು ಕೆಲಸ ಮಾಡುತ್ತವೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಅವರನ್ನು ಕೇಳಿ.", "hi": "बहुत सारी गलत कोशिशों के कारण आज सुरक्षा के लिए इस भोजन लिंक पर नए लॉगिन रोके गए हैं। पहले से लॉगिन फ़ोन काम करते रहेंगे। कृपया अपने PG मैनेजर से पूछें।"}, "Please open the personal link your PG manager sent you on WhatsApp.": {"te": "దయచేసి మీ PG మేనేజర్ WhatsApp లో పంపిన మీ వ్యక్తిగత లింక్‌ను తెరవండి.", "kn": "ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ WhatsApp ನಲ್ಲಿ ಕಳುಹಿಸಿದ ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಲಿಂಕ್ ತೆರೆಯಿರಿ.", "hi": "कृपया अपने PG मैनेजर द्वारा WhatsApp पर भेजा गया अपना निजी लिंक खोलें।"}, "This link was already used or has expired. Ask your PG manager to send you a new link on WhatsApp.": {"te": "ఈ లింక్ ఇప్పటికే వాడబడింది లేదా గడువు ముగిసింది. WhatsApp లో కొత్త లింక్ పంపమని మీ PG మేనేజర్‌ను అడగండి.", "kn": "ಈ ಲಿಂಕ್ ಈಗಾಗಲೇ ಬಳಸಲಾಗಿದೆ ಅಥವಾ ಅವಧಿ ಮುಗಿದಿದೆ. WhatsApp ನಲ್ಲಿ ಹೊಸ ಲಿಂಕ್ ಕಳುಹಿಸಲು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಅವರನ್ನು ಕೇಳಿ.", "hi": "यह लिंक पहले ही इस्तेमाल हो चुका है या इसकी समय-सीमा खत्म हो गई है। अपने PG मैनेजर से WhatsApp पर नया लिंक भेजने को कहें।"}, "Problem reporting is switched off by your PG. Please tell your PG manager directly.": {"te": "మీ PG సమస్యల ఫిర్యాదును ఆపివేసింది. దయచేసి మీ PG మేనేజర్‌కు నేరుగా చెప్పండి.", "kn": "ನಿಮ್ಮ PG ಸಮಸ್ಯೆ ದೂರು ನೀಡುವುದನ್ನು ನಿಲ್ಲಿಸಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್‌ಗೆ ನೇರವಾಗಿ ತಿಳಿಸಿ.", "hi": "आपके PG ने समस्या दर्ज करना बंद किया है। कृपया अपने PG मैनेजर को सीधे बताएं।"}, "Could not reach the server. Check your internet and try again.": {"te": "సర్వర్‌ను చేరుకోలేకపోయాం. మీ ఇంటర్నెట్ చూసి మళ్లీ ప్రయత్నించండి.", "kn": "ಸರ್ವರ್ ತಲುಪಲಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ಇಂಟರ್ನೆಟ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.", "hi": "सर्वर तक नहीं पहुँच सके। अपना इंटरनेट जाँचें और दोबारा कोशिश करें।"}};
+const SRV_LATE = {"te": "ఈ రోజు మార్చడానికి సమయం ముగిసింది. మార్పులు ముందు రోజు సాయంత్రం {t} కి ముగుస్తాయి.", "kn": "ಈ ದಿನವನ್ನು ಬದಲಾಯಿಸಲು ತಡವಾಗಿದೆ. ಬದಲಾವಣೆಗಳು ಹಿಂದಿನ ದಿನ ಸಂಜೆ {t} ಕ್ಕೆ ಮುಚ್ಚುತ್ತವೆ.", "hi": "इस दिन को बदलने का समय निकल गया। बदलाव एक दिन पहले शाम {t} बजे बंद हो जाते हैं।"};
+function trMsg(m) {
+  if (!m || lang === 'en') return m;
+  const x = SRV[m]; if (x && x[lang]) return x[lang];
+  const late = /^Too late to change this day\. Changes close at (.+) the evening before\.$/.exec(m);
+  if (late && SRV_LATE[lang]) return SRV_LATE[lang].replace('{t}', late[1]);
+  return m;
+}
+const LOCALE = { en: 'en-IN', te: 'te-IN', kn: 'kn-IN', hi: 'hi-IN' };
+
+const app = document.getElementById('app');
+const link = new URLSearchParams(location.search).get('p') || '';
+const storeKey = 'pgmeal_' + link;
+const invite = (new URLSearchParams(location.search).get('c') || '').trim();
+const counter = (new URLSearchParams(location.search).get('k') || '').trim();      // meal counter QR
+const posterMode = new URLSearchParams(location.search).get('poster') === '1';
+
+function store(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+function read(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+// Language: saved choice, else the phone's language, else English.
+let lang = read('pgmeal_lang');
+if (!T[lang]) {
+  const nav = (navigator.languages || [navigator.language || 'en']).map(l => String(l).slice(0, 2));
+  lang = nav.find(l => T[l]) || 'en';
+}
+function t(key, vars) {
+  let s = (T[lang] && T[lang][key]) ?? T.en[key] ?? key;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace('{' + k + '}', v);
+  return s;
+}
+
+// A random ID for this phone, so wrong tries lock only this phone (not the real guest's).
+let deviceId = read('pgmeal_device');
+if (!deviceId) {
+  deviceId = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now());
+  store('pgmeal_device', deviceId);
+}
+
+let memToken = null; // fallback when the browser blocks storage
+const token = () => read(storeKey) || memToken;
+function setToken(v) { store(storeKey, v); memToken = v; }
+
+async function rpc(fn, body) {
+  let r;
+  try {
+  r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  } catch (e) { throw new Error(trMsg('Could not reach the server. Check your internet and try again.')); }
+  const text = await r.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!r.ok) throw new Error(trMsg((data && data.message) || 'Could not reach the server. Check your internet and try again.'));
+  if (data && data.ok === false && data.message) data.message = trMsg(data.message);
+  return data;
+}
+
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function dayName(iso, isToday) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  const loc = LOCALE[lang] || 'en-IN';
+  const dm = dt.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
+  return isToday ? `${t('today')}, ${dm}` : dt.toLocaleDateString(loc, { weekday: 'short', day: 'numeric', month: 'short' });
+}
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function langBar() {
+  return `<nav class="langs" aria-label="Language">${LANGS.map(([code, name]) =>
+    `<button type="button" data-lang="${code}" aria-pressed="${code === lang}" lang="${code}">${name}</button>`).join('')}</nav>`;
+}
+function wireLangBar(rerender) {
+  app.querySelectorAll('button[data-lang]').forEach(b => b.onclick = () => {
+    lang = b.dataset.lang; store('pgmeal_lang', lang); document.documentElement.lang = lang; rerender();
+  });
+}
+document.documentElement.lang = lang;
+
+// A different "don't waste food" note every day (same note for everyone on the same day).
+function todayTip() {
+  const now = new Date();
+  const dayNo = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
+  const tips = t('tips');
+  const [ico, text] = tips[dayNo % tips.length];
+  return `<div class="tip daily" role="note"><div class="ico" aria-hidden="true">${ico}</div>
+    <div><b>${t('todaysNote')}</b><p>${esc(text)}</p></div></div>`;
+}
+function ownerTip(note) {
+  if (!note) return '';
+  return `<div class="tip owner" role="note"><div class="ico" aria-hidden="true">📢</div>
+    <div><b>${t('ownerNote')}</b><p>${esc(note)}</p></div></div>`;
+}
+
+// ---------- Step 1: who are you? ----------
+let loginData = null; // { rooms, note, message }
+async function showLogin(message) {
+  if (!link) {
+    app.innerHTML = `${langBar()}<h1>${t('linkMissing')}</h1><p class="sub">${t('openFull')}</p>`;
+    wireLangBar(() => showLogin(message)); return;
+  }
+  if (!loginData) {
+    app.innerHTML = '<div class="spinner" aria-label="Loading"></div>';
+    try {
+      const [rooms, info] = await Promise.all([rpc('vote_rooms', { p_link: link }), rpc('vote_note', { p_link: link })]);
+      loginData = { rooms, note: info && info.note, digits: !(info && info.digits === false) };
+    } catch (e) {
+      app.innerHTML = `${langBar()}<h1>${t('cantOpen')}</h1><div class="msg">${esc(e.message)}</div>`;
+      wireLangBar(() => showLogin(message)); return;
+    }
+  }
+  renderLogin(message);
+}
+
+function renderLogin(message, keep) {
+  if (!loginData.digits) {
+    app.innerHTML = `${langBar()}<h1>${t('useLinkTitle')}</h1>
+      ${message ? `<div class="msg">${esc(message)}</div>` : ''}
+      <p class="sub">${t('useLink')}</p>${ownerTip(loginData.note)}`;
+    wireLangBar(() => renderLogin(message, keep)); return;
+  }
+  const byRoom = {};
+  loginData.rooms.forEach(r => { (byRoom[r.room_no] ||= { floor: r.floor, beds: [] }).beds.push(r.bed_label); });
+  const floors = {};
+  Object.entries(byRoom).forEach(([no, v]) => { (floors[v.floor] ||= []).push(no); });
+  const roomOptions = Object.keys(floors).sort((a, b) => a - b).map(f =>
+    `<optgroup label="${f == 0 ? t('ground') : t('floor', { n: f })}">${floors[f].map(no => `<option>${esc(no)}</option>`).join('')}</optgroup>`
+  ).join('');
+  app.innerHTML = `
+    ${langBar()}
+    <h1>${t('welcome')}</h1>
+    <p class="sub">${t('firstTime')}</p>
+    ${ownerTip(loginData.note)}
+    ${todayTip()}
+    <div class="card">
+      <label class="f" for="room">${t('yourRoom')}</label>
+      <select id="room"><option value="">${t('chooseRoom')}</option>${roomOptions}</select>
+      <label class="f" for="bed">${t('yourBed')}</label>
+      <select id="bed" disabled><option value="">${t('chooseRoomFirst')}</option></select>
+      <label class="f" for="l4">${t('last4')}</label>
+      <input id="l4" class="t" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="••••">
+      <div id="lmsg">${message ? `<div class="msg">${esc(message)}</div>` : ''}</div>
+      <button id="go" class="btn all">${t('cont')}</button>
+    </div>
+    <p class="note">${t('phoneSaved')}</p>`;
+  const roomEl = document.getElementById('room'), bedEl = document.getElementById('bed'), l4El = document.getElementById('l4');
+  const fillBeds = () => {
+    const r = byRoom[roomEl.value];
+    bedEl.disabled = !r;
+    bedEl.innerHTML = r ? r.beds.map(b => `<option>${esc(b)}</option>`).join('') : `<option value="">${t('chooseRoomFirst')}</option>`;
+  };
+  roomEl.onchange = fillBeds;
+  if (keep) { roomEl.value = keep.room; fillBeds(); bedEl.value = keep.bed; l4El.value = keep.l4; }
+  wireLangBar(() => renderLogin(message, { room: roomEl.value, bed: bedEl.value, l4: l4El.value }));
+  document.getElementById('go').onclick = async () => {
+    const l4 = l4El.value.replace(/\D/g, '');
+    const lmsg = document.getElementById('lmsg');
+    if (!roomEl.value || !bedEl.value || l4.length !== 4) {
+      lmsg.innerHTML = `<div class="msg">${t('fillAll')}</div>`; return;
+    }
+    const btn = document.getElementById('go'); btn.disabled = true; btn.textContent = t('checking');
+    try {
+      const res = await rpc('vote_login', { p_link: link, p_room: roomEl.value, p_bed: bedEl.value, p_last4: l4, p_device: deviceId });
+      if (!res.ok) { lmsg.innerHTML = `<div class="msg">${esc(res.message)}</div>`; btn.disabled = false; btn.textContent = t('cont'); return; }
+      setToken(res.token);
+      if (counter && !goMeals) return showPass();
+      await showMeals();
+    } catch (e) { lmsg.innerHTML = `<div class="msg">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = t('cont'); }
+  };
+}
+
+// ---------- Step 2: meals ----------
+let state = null;
+let issues = [];
+let status = { verified: false, can_report: true };   // is this phone verified by the personal link?
+let probCat = null;
+let probPhoto = null;   // { blob, url } after shrinking
+const CATS = ['leak', 'hot_water', 'no_water', 'electrical', 'cleaning', 'hygiene', 'pests', 'furniture', 'wifi', 'other'];
+async function showMeals() {
+  if (!token()) return showLogin();
+  if (!state) app.innerHTML = '<div class="spinner" aria-label="Loading"></div>';
+  try { state = await rpc('vote_get', { p_token: token() }); }
+  catch (e) { setToken(null); state = null; return showLogin(e.message); }
+  try { issues = await rpc('vote_issues', { p_token: token() }); } catch (e) { issues = []; }
+  try { status = await rpc('vote_status', { p_token: token() }); } catch (e) { status = { verified: false, can_report: true }; }
+  render();
+}
+
+function render() {
+  const s = state;
+  const days = s.days.map(d => {
+    const pill = !d.staying ? `<span class="pill lock">${t('notStaying')}</span>`
+      : d.is_today || !d.open ? `<span class="pill lock">${t('locked')}</span>`
+      : d.replied ? `<span class="pill ok">${t('replied')}</span>`
+      : `<span class="pill wait">${t('notReplied')}</span>`;
+    const canEdit = d.staying && d.open && !d.is_today;
+    const rows = d.meals.map(m => `
+      <div class="row">
+        <div class="meal">${t(m.meal)}<small>${m.eating ? t('eating') : t('skipping')}</small></div>
+        <label class="sw" aria-label="${t(m.meal)}, ${dayName(d.date, d.is_today)}">
+          <input type="checkbox" data-date="${d.date}" data-meal="${m.meal}" ${m.eating ? 'checked' : ''} ${canEdit ? '' : 'disabled'}>
+          <span></span>
+        </label>
+      </div>`).join('');
+    const allEating = d.meals.every(m => m.eating);
+    const allBtn = !canEdit ? ''
+      : d.replied && allEating ? `<button class="btn all done" data-all="${d.date}">${t('allDone')}</button>`
+      : !allEating ? `<button class="btn all ghost" data-all="${d.date}">${t('allBack')}</button>`
+      : `<button class="btn all" data-all="${d.date}">${t('allTap')}</button>`;
+    return `<section class="card" aria-label="${dayName(d.date, d.is_today)}">
+      <div class="day-head"><div class="day-title">${dayName(d.date, d.is_today)}</div>${pill}</div>
+      ${rows}${allBtn}</section>`;
+  }).join('');
+  app.innerHTML = `
+    ${langBar()}
+    <h1>${t('hi', { name: esc(s.name) })}</h1>
+    <p class="sub">${esc(s.pg_name)} · ${t('room')} ${esc(s.room)}-${esc(s.bed)}<br>
+      ${t('howTo', { cutoff: `<b>${esc(s.cutoff)}</b>` })}</p>
+    ${ownerTip(s.note)}
+    ${todayTip()}
+    ${days}
+    ${problemCard()}
+    <p class="center"><button class="link" id="notme">${t('notMe', { name: esc(s.name) })}</button></p>`;
+  wireLangBar(render);
+
+  app.querySelectorAll('input[type=checkbox]').forEach(el => el.onchange = async () => {
+    const eating = el.checked;
+    el.disabled = true;
+    try {
+      state = await rpc('vote_set', { p_token: token(), p_date: el.dataset.date, p_meal: el.dataset.meal, p_eating: eating });
+      render();
+      toast(t('saved'));
+    } catch (e) { el.checked = !eating; el.disabled = false; toast(e.message); }
+  });
+  app.querySelectorAll('button[data-all]').forEach(btn => btn.onclick = async () => {
+    btn.disabled = true;
+    try {
+      state = await rpc('vote_all', { p_token: token(), p_date: btn.dataset.all });
+      render();
+      toast(t('thanks'));
+    } catch (e) { btn.disabled = false; toast(e.message); }
+  });
+  wireProblemCard();
+  document.getElementById('notme').onclick = async () => {
+    try { await rpc('vote_logout', { p_token: token() }); } catch (e) {}
+    setToken(null); state = null; loginData = null; showLogin();
+  };
+}
+
+// ---------- Problem in the room (maintenance) ----------
+function problemCard() {
+  const chips = CATS.map(c => `<button data-cat="${c}" aria-pressed="${probCat === c}">${t('cat_' + c)}</button>`).join('');
+  const pill = st => `<span class="pill ${st === 'fixed' ? 'ok' : st === 'in_progress' ? 'wait' : st === 'not_real' ? 'lock' : 'red'}">${t('st_' + st)}</span>`;
+  const photo = probPhoto
+    ? `<div class="photo-row"><img src="${probPhoto.url}" alt=""><span>${t('photoAdded')}</span><button class="link" id="probPhotoDel">${t('removePhoto')}</button></div>`
+    : `<div class="photo-row"><button class="btn ghost small" id="probPhotoBtn">${t('addPhoto')}</button></div>`;
+  const list = issues.length ? `<div style="margin-top:12px"><b>${t('yourReports')}</b>${issues.map(i =>
+      `<div class="rep"><span>${esc(t('cat_' + i.category))} · ${esc(dayName(String(i.created_at).slice(0, 10), false))}</span>${pill(i.status)}</div>`).join('')}</div>` : '';
+  if (status.reports_on === false) return '';   // owner switched off guest reports
+  if (!status.verified || status.can_report === false) {
+    return `<section class="card" id="prob" aria-label="${t('probTitle')}">
+    <div class="day-head"><div class="day-title">🛠️ ${t('probTitle')}</div></div>
+    <p class="note" style="margin:6px 0 0">🔒 ${t(status.can_report === false ? 'reportOff' : 'needLink')}</p>
+    ${list}
+  </section>`;
+  }
+  return `<section class="card" id="prob" aria-label="${t('probTitle')}">
+    <div class="day-head"><div class="day-title">🛠️ ${t('probTitle')}</div></div>
+    <p class="note" style="margin:6px 0 0">${t('probHelp')}</p>
+    <div class="chips">${chips}</div>
+    <textarea id="probNote" class="t2" maxlength="300" placeholder="${t('probNote')}"></textarea>
+    <input type="file" id="probFile" accept="image/*" capture="environment" hidden>
+    ${photo}
+    <button class="btn all" id="probSend">${t('probSend')}</button>
+    ${list}
+  </section>`;
+}
+
+function wireProblemCard() {
+  if (!document.getElementById('probSend')) return;
+  app.querySelectorAll('#prob button[data-cat]').forEach(b => b.onclick = () => {
+    probCat = b.dataset.cat;
+    app.querySelectorAll('#prob button[data-cat]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  });
+  const file = document.getElementById('probFile');
+  const pickBtn = document.getElementById('probPhotoBtn');
+  if (pickBtn) pickBtn.onclick = () => file.click();
+  const delBtn = document.getElementById('probPhotoDel');
+  if (delBtn) delBtn.onclick = () => { keepNote(); URL.revokeObjectURL(probPhoto.url); probPhoto = null; render(); };
+  file.onchange = async () => {
+    const f = file.files && file.files[0];
+    if (!f) return;
+    try {
+      const blob = await shrinkPhoto(f);
+      keepNote();
+      if (probPhoto) URL.revokeObjectURL(probPhoto.url);
+      probPhoto = { blob, url: URL.createObjectURL(blob) };
+      render();
+    } catch (e) { toast(t('photoFail')); }
+  };
+  const send = document.getElementById('probSend');
+  send.onclick = async () => {
+    if (!probCat) { toast(t('probChoose')); return; }
+    send.disabled = true;
+    let photoPath = null;
+    try {
+      if (probPhoto) {
+        try { photoPath = await uploadPhoto(probPhoto.blob); }
+        catch (e) { send.disabled = false; toast(t('photoFail')); return; }
+      }
+      issues = await rpc('vote_report_issue', { p_token: token(), p_category: probCat,
+        p_note: document.getElementById('probNote').value, p_photo_path: photoPath });
+      probCat = null; savedNote = '';
+      if (probPhoto) { URL.revokeObjectURL(probPhoto.url); probPhoto = null; }
+      render();
+      toast(t('probSent'));
+    } catch (e) { send.disabled = false; toast(e.message); }
+  };
+  const noteBox = document.getElementById('probNote');
+  if (savedNote) noteBox.value = savedNote;
+}
+
+let savedNote = '';
+function keepNote() { const n = document.getElementById('probNote'); if (n) savedNote = n.value; }
+
+// Make the photo small (longest side 1024 px, JPG) so it uploads fast on mobile data.
+function shrinkPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 1024, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const tryQ = q => c.toBlob(b => {
+        if (!b) return reject(new Error('photo'));
+        if (b.size > 280000 && q > 0.4) return tryQ(q - 0.15);
+        resolve(b);
+      }, 'image/jpeg', q);
+      tryQ(0.75);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('photo')); };
+    img.src = url;
+  });
+}
+
+// Upload into this phone's own private folder; returns the saved path.
+async function uploadPhoto(blob) {
+  const folder = await rpc('vote_photo_folder', { p_token: token() });
+  const name = `${folder}/${Date.now()}${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/issue-photos/${name}`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'image/jpeg', 'x-upsert': 'false' },
+    body: blob,
+  });
+  if (!r.ok) throw new Error('upload ' + r.status);
+  return name;
+}
+
+// Personal link (?c=CODE): claim it once, then remove the code from the address bar.
+
+// ---------- Meal counter QR: pass screen ----------
+let passTimer = null;
+async function showPass() {
+  app.innerHTML = '<div class="spinner" aria-label="Loading"></div>';
+  let r;
+  try { r = await rpc('vote_meal_checkin', { p_token: token(), p_counter: counter }); }
+  catch (e) { setToken(null); return showLogin(t('pass_notguest')); }
+  const mealName = r.meal ? t(r.meal) : '';
+  const who = r.name ? `<div class="who">${esc(r.name)}</div><div>${t('room')} ${esc(r.room)}-${esc(r.bed)} · ${esc(mealName)}</div>` : '';
+  let cls = 'none', icon = 'ℹ️', title = esc(r.message || '');
+  if (r.status === 'ok') { cls = 'ok'; icon = '✅'; title = t('pass_ok'); }
+  else if (r.status === 'already') { cls = 'already'; icon = '⚠️'; title = t('pass_already', { t: esc(r.served_at) }); }
+  else if (r.status === 'no_meal') { cls = 'none'; icon = '🕒'; title = t('pass_nomeal'); }
+  else { cls = 'bad'; icon = '⛔'; }
+  app.innerHTML = `${langBar()}
+    <div class="pass ${cls}" role="status">
+      <div class="big">${icon}</div><h1>${title}</h1>${who}
+      ${r.status === 'ok' && r.was_skipped ? `<p>${t('pass_skipped')}</p>` : ''}
+      <div class="clock"><span class="dot"></span><span id="clk"></span></div>
+    </div>
+    <p class="center"><button class="btn ghost" id="back">${t('pass_back')}</button></p>`;
+  const tick = () => { const el = document.getElementById('clk'); if (el) el.textContent = new Date().toLocaleTimeString(LOCALE[lang] || 'en-IN'); };
+  clearInterval(passTimer); tick(); passTimer = setInterval(tick, 1000);
+  wireLangBar(showPass);
+  document.getElementById('back').onclick = () => {
+    clearInterval(passTimer);
+    try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(link)); } catch (e) {}
+    goMeals = true; showMeals();
+  };
+}
+let goMeals = false;   // after "Back to my meals", logins go to the meal list
+
+// Printable counter poster: meal.html?p=LINK&k=COUNTER&poster=1 (made from the owner app).
+function showCounterPoster() {
+  const url = location.origin + location.pathname + '?p=' + encodeURIComponent(link) + '&k=' + encodeURIComponent(counter);
+  app.innerHTML = `<div class="poster"><h1>🍽️ Scan before taking food</h1>
+    <p class="sub" style="font-size:18px">Open your phone camera and point it here. Show the green screen to the cook.</p>
+    <div id="qr"></div>
+    <p class="note">Guests only. The screen shows your name, room and the time.</p>
+    <p class="noprint"><button class="btn" onclick="print()">🖨️ Print this poster</button></p></div>`;
+  const sc = document.createElement('script');
+  sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+  sc.onload = () => { const q = qrcode(0, 'M'); q.addData(url); q.make();
+    document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }); };
+  document.head.appendChild(sc);
+}
+
+async function start() {
+  if (link && counter && posterMode) return showCounterPoster();
+  if (link && counter) return token() ? showPass() : showLogin(t('pass_notguest'));
+  if (link && invite) {
+    try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(link)); } catch (e) {}
+    try {
+      const res = await rpc('vote_claim', { p_link: link, p_code: invite, p_device: deviceId });
+      if (res.ok) {
+        setToken(res.token); state = null;
+        await showMeals(); toast(t('phoneVerified')); return;
+      }
+      if (!token()) return showLogin(res.message);
+      // Already logged in on this phone (e.g. tapped the old link again): carry on; say why only if not verified.
+      await showMeals();
+      if (!status.verified) toast(res.message);
+      return;
+    } catch (e) { if (!token()) return showLogin(e.message); }
+  }
+  showMeals();
+}
+start();
+</script>
+</body>
+</html>

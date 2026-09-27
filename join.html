@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2F6B4F">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://idowfsvjkbatqshkpimg.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Join PG</title>
+<style>
+  :root {
+    --leaf: #2F6B4F; --leaf-dark: #234F3B; --turmeric: #8F5E00; --turmeric-bg: #FBF1DC;
+    --bg: #F4F7F5; --card: #FFFFFF; --ink: #1D2622; --muted: #56645D; --line: #DCE3DF;
+    --red: #B3261E; --red-bg: #FCE8E4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Telugu", "Noto Sans Kannada",
+      "Noto Sans Devanagari", sans-serif; -webkit-text-size-adjust: 100%; }
+  main { max-width: 480px; margin: 0 auto; padding: 12px 16px 40px; }
+  h1 { font-size: 22px; margin: 8px 0 2px; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 15px; }
+  .langs { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 6px; }
+  .langs button { min-height: 36px; padding: 0 12px; border-radius: 999px; background: #fff; color: var(--ink);
+    border: 1px solid var(--line); font-size: 14px; }
+  .langs button[aria-pressed="true"] { background: var(--leaf); color: #fff; border-color: var(--leaf); font-weight: 600; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+  .day-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .day-title { font-weight: 700; font-size: 17px; }
+  .pill { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { background: #E3F1EA; color: var(--leaf-dark); }
+  .pill.wait { background: var(--turmeric-bg); color: var(--turmeric); }
+  .pill.lock { background: #EDF1EF; color: var(--muted); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; border-top: 1px solid #EDF1EF; }
+  .row:first-of-type { border-top: 0; }
+  .meal { font-size: 16px; }
+  .meal small { display: block; color: var(--muted); font-size: 13px; }
+  /* big, easy switch */
+  .sw { position: relative; width: 58px; height: 34px; flex: none; }
+  .sw input { opacity: 0; width: 100%; height: 100%; margin: 0; position: absolute; inset: 0; cursor: pointer; z-index: 1; }
+  .sw span { position: absolute; inset: 0; background: #C9D3CE; border-radius: 999px; transition: background .15s; }
+  .sw span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 28px; height: 28px; background: #fff;
+    border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
+  .sw input:checked + span { background: var(--leaf); }
+  .sw input:checked + span::after { transform: translateX(24px); }
+  .sw input:disabled + span { opacity: .45; }
+  .sw input:focus-visible + span { outline: 3px solid #8FC1A8; outline-offset: 2px; }
+  button { font: inherit; border: 0; border-radius: 12px; min-height: 48px; padding: 0 16px; cursor: pointer; }
+  .btn { width: 100%; background: var(--leaf); color: #fff; font-weight: 600; font-size: 16px; padding: 10px 16px; }
+  .btn:disabled { opacity: .5; }
+  .btn.ghost { background: transparent; color: var(--leaf); border: 1.5px solid var(--leaf); }
+  .btn.done { background: #E3F1EA; color: var(--leaf-dark); }
+  .all { margin-top: 10px; }
+  label.f { display: block; font-weight: 600; margin: 14px 0 6px; }
+  select, input.t { width: 100%; font: inherit; font-size: 17px; min-height: 48px; padding: 0 12px; border: 1px solid #B8C4BE;
+    border-radius: 12px; background: #fff; color: var(--ink); }
+  input.t { letter-spacing: 6px; font-size: 22px; text-align: center; }
+  .msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--red-bg); color: var(--red); font-size: 15px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .tip { display: flex; gap: 12px; align-items: flex-start; border-radius: 14px; padding: 14px 16px; margin: 0 0 12px; }
+  .tip.daily { background: var(--turmeric-bg); border: 1px solid #F0DDB0; }
+  .tip.owner { background: #E3F1EA; border: 1px solid #BFDCCB; }
+  .tip .ico { font-size: 26px; line-height: 1; }
+  .tip b { display: block; font-size: 13px; letter-spacing: .3px; margin-bottom: 2px; }
+  .tip.daily b { color: var(--turmeric); }
+  .tip.owner b { color: var(--leaf-dark); }
+  .tip p { margin: 0; font-size: 16px; color: var(--ink); white-space: pre-line; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .chips button { min-height: 40px; padding: 0 12px; border-radius: 999px; background: #fff; color: var(--ink);
+    border: 1px solid var(--line); font-size: 14px; }
+  .chips button[aria-pressed="true"] { background: var(--leaf); color: #fff; border-color: var(--leaf); font-weight: 600; }
+  textarea.t2 { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; min-height: 64px; padding: 10px 12px;
+    border: 1px solid #B8C4BE; border-radius: 12px; margin-bottom: 10px; }
+  .rep { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .photo-row { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; flex-wrap: wrap; }
+  .photo-row img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+  .btn.small { width: auto; min-height: 40px; font-size: 15px; }
+  .pill.red { background: var(--red-bg); color: var(--red); }
+  .link { background: none; color: var(--muted); text-decoration: underline; min-height: 44px; padding: 0; font-size: 14px; }
+  .center { text-align: center; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); max-width: 92vw; background: #1D2622; color: #fff;
+    padding: 10px 16px; border-radius: 10px; font-size: 15px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .spinner { margin: 60px auto; width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--leaf);
+    border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<style>
+  input.f2, select.f2 { width: 100%; font: inherit; font-size: 16px; min-height: 46px; padding: 0 12px; border: 1px solid #B8C4BE;
+    border-radius: 12px; background: #fff; color: var(--ink); }
+  textarea.f2 { width: 100%; font: inherit; font-size: 16px; min-height: 70px; padding: 10px 12px; border: 1px solid #B8C4BE; border-radius: 12px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .am { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .am span { background: #E3F1EA; color: var(--leaf-dark); border-radius: 999px; padding: 4px 10px; font-size: 14px; }
+  .rules { white-space: pre-line; font-size: 15px; max-height: 260px; overflow: auto; background: #F8FAF9; border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; }
+  .check { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0; font-size: 15px; }
+  .check input { width: 24px; height: 24px; flex: none; margin-top: 1px; accent-color: var(--leaf); }
+  .photo-row img.big { width: 96px; height: 96px; }
+  h2 { font-size: 17px; margin: 0 0 4px; }
+  .ok-box { text-align: center; padding: 30px 16px; }
+  .ok-box .big { font-size: 56px; }
+  .poster { text-align: center; padding: 20px 10px; }
+  .poster h1 { font-size: 30px; }
+  .poster #qr img, .poster #qr svg { width: min(78vw, 360px); height: auto; }
+  @media print { .noprint { display: none; } }
+</style>
+</head>
+<body>
+<main id="app"><div class="spinner" aria-label="Loading"></div></main>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+// ---- Settings (public values; the database checks every request) ----
+const SUPABASE_URL = 'https://idowfsvjkbatqshkpimg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
+const CONSENT_VERSION = 'v1';
+const qs = new URLSearchParams(location.search);
+const code = (qs.get('j') || '').trim();
+const app = document.getElementById('app');
+
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function store(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+function read(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 3500); }
+let deviceId = read('pgmeal_device');
+if (!deviceId) { deviceId = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now(); store('pgmeal_device', deviceId); }
+
+async function rpc(fn, body) {
+  let r;
+  try {
+    r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, { method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  } catch (e) { throw new Error('Could not reach the server. Check your internet and try again.'); }
+  const text = await r.text(); const data = text ? JSON.parse(text) : null;
+  if (!r.ok) throw new Error((data && data.message) || 'Something went wrong. Please try again.');
+  return data;
+}
+
+// ---------- Printable QR poster for the counter: join.html?j=CODE&poster=1 ----------
+function showPoster(info) {
+  const url = location.origin + location.pathname + '?j=' + encodeURIComponent(code);
+  app.innerHTML = `<div class="poster">
+    <h1>${esc(info.pg_name)}</h1>
+    <p class="sub" style="font-size:20px">New guest? Scan to join 📱</p>
+    <div id="qr" aria-label="QR code"></div>
+    <p class="note">Open your phone camera and point it at this code.<br>Fill your details, ID and selfie. The manager will confirm your bed.</p>
+    <p class="noprint"><button class="btn" onclick="print()">🖨️ Print this poster</button></p>
+  </div>`;
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+  s.onload = () => { const q = qrcode(0, 'M'); q.addData(url); q.make();
+    document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }); };
+  s.onerror = () => { document.getElementById('qr').innerHTML = `<p class="msg">QR could not load. Link: ${esc(url)}</p>`; };
+  document.head.appendChild(s);
+}
+
+// ---------- Joining form ----------
+const ID_TYPES = [['aadhaar_masked', 'Aadhaar (masked: only last 4 digits visible)'], ['pan', 'PAN card'],
+  ['driving_licence', 'Driving licence'], ['passport', 'Passport'], ['voter_id', 'Voter ID']];
+const STATES = ['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh',
+  'Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab',
+  'Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman and Nicobar Islands',
+  'Chandigarh','Dadra and Nagar Haveli and Daman and Diu','Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry','Other country'];
+let info = null;
+const photos = { id: null, selfie: null };   // { blob, url }
+
+function consentText(pg, keep) {
+  return `By sending this form, I agree that ${pg}:
+• keeps my name, phone, email, home address, food choice, ID photo and selfie, to know who stays here, for safety, rent and meals, and to share with the police only if the law asks for it;
+• lets only its owner and manager see my ID photo and selfie (not other guests or the cook);
+• deletes my ID photo and selfie ${keep} days after I leave, and removes my phone and address 1 year after I leave (name and stay dates are kept as a record);
+• I can ask the PG manager to correct or delete my details.
+I have NOT written my Aadhaar number anywhere. If I uploaded Aadhaar, it is the masked copy (only last 4 digits visible).`;
+}
+
+function field(id, label, type = 'text', extra = '') {
+  return `<label class="f" for="${id}">${label}</label><input class="f2" id="${id}" type="${type}" ${extra}>`;
+}
+function sel(id, label, opts, first = 'Choose') {
+  return `<label class="f" for="${id}">${label}</label><select class="f2" id="${id}"><option value="">${first}</option>${
+    opts.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('')}</select>`;
+}
+function photoBlock(kind) {
+  const p = photos[kind];
+  const label = kind === 'id' ? '📄 Photo of your ID' : '🤳 Take a selfie';
+  return p ? `<div class="photo-row"><img class="big" src="${p.url}" alt=""><span>Added ✓</span>
+      <button class="link" data-retake="${kind}">Change</button></div>`
+    : kind === 'id'
+      ? `<div class="photo-row"><button class="btn ghost small" data-pick="id">📷 Take photo of ID</button>
+           <button class="btn ghost small" data-pick="idGallery">🖼️ Choose from gallery</button></div>`
+      : `<div class="photo-row"><button class="btn ghost small" data-pick="${kind}">${label}</button></div>`;
+}
+
+function renderForm() {
+  const am = (info.amenities || []).length ? `<div class="am">${info.amenities.map(a => `<span>✓ ${esc(a)}</span>`).join('')}</div>` : '';
+  app.innerHTML = `
+    <h1>Join ${esc(info.pg_name)} 🙏</h1>
+    <p class="sub">Fill this on your own phone. It takes about 3 minutes. The manager will confirm your bed.</p>
+    ${am ? `<section class="card"><h2>What you get</h2>${am}</section>` : ''}
+    <section class="card"><h2>1. About you</h2>
+      ${field('full_name', 'Full name (as on your ID)', 'text', 'maxlength="100" autocomplete="name"')}
+      ${field('phone', 'Mobile number (WhatsApp)', 'tel', 'maxlength="15" inputmode="tel" autocomplete="tel" placeholder="98450 12345"')}
+      ${field('email', 'Email (optional)', 'email', 'maxlength="120" autocomplete="email"')}
+      <div class="grid2">
+        <div>${sel('gender', 'Gender', [['male', 'Male'], ['female', 'Female'], ['other', 'Other']])}</div>
+        <div>${sel('food', 'Food', [['veg', 'Veg'], ['non_veg', 'Non-veg'], ['egg', 'Egg only']])}</div>
+      </div>
+      ${sel('tea', 'Morning drink', [['tea', 'Tea'], ['coffee', 'Coffee'], ['none', 'Neither']])}
+      ${sel('adult', 'Are you 18 or older?', [['yes', 'Yes, 18 or older'], ['no', 'No, under 18']])}
+      <div id="guardian" hidden>
+        <p class="note">Under 18: your parent or guardian must agree. The manager will call them.</p>
+        ${field('guardian_name', 'Parent / guardian name', 'text', 'maxlength="100"')}
+        ${field('guardian_phone', 'Parent / guardian mobile', 'tel', 'maxlength="15" inputmode="tel"')}
+      </div>
+    </section>
+    <section class="card"><h2>2. Home address</h2>
+      <label class="f" for="home_address">Address</label><textarea class="f2" id="home_address" maxlength="300"></textarea>
+      <div class="grid2">
+        <div>${field('home_city', 'City / town', 'text', 'maxlength="80"')}</div>
+        <div>${field('home_pincode', 'Pincode', 'text', 'maxlength="6" inputmode="numeric"')}</div>
+      </div>
+      ${sel('home_state', 'State', STATES.map(s => [s, s]))}
+      ${field('emergency', 'Emergency contact (name and phone)', 'text', 'maxlength="150" placeholder="Father - 98450 00000"')}
+    </section>
+    <section class="card"><h2>3. ID and selfie</h2>
+      ${sel('id_type', 'ID type', ID_TYPES)}
+      <p class="note">⚠️ For Aadhaar, upload only the <b>masked Aadhaar</b> (download it free from myaadhaar.uidai.gov.in; it shows only the last 4 digits). Do not type your Aadhaar number anywhere.</p>
+      <div id="idBlock">${photoBlock('id')}</div>
+      <div id="selfieBlock">${photoBlock('selfie')}</div>
+      <input type="file" id="fileId" accept="image/*" capture="environment" hidden>
+      <input type="file" id="fileIdGallery" accept="image/*" hidden>
+      <input type="file" id="fileSelfie" accept="image/*" capture="user" hidden>
+    </section>
+    <section class="card"><h2>4. House rules</h2>
+      <div class="rules">${esc(info.rules || 'Follow the PG timings and keep the rooms clean. Respect other guests. The manager will explain the rules.')}</div>
+      <label class="check"><input type="checkbox" id="rules_ok"><span>I have read the house rules and I will follow them.</span></label>
+    </section>
+    <section class="card"><h2>5. Your consent</h2>
+      <div class="rules">${esc(consentText(info.pg_name, info.keep_days || 7))}</div>
+      <label class="check"><input type="checkbox" id="consent_ok"><span>I agree.</span></label>
+    </section>
+    <div id="msg"></div>
+    <button class="btn" id="send">Send to PG manager</button>
+    <p class="note center">Your details go only to this PG's owner and manager.</p>`;
+  wire();
+}
+
+function wire() {
+  const adult = document.getElementById('adult');
+  adult.onchange = () => { document.getElementById('guardian').hidden = adult.value !== 'no'; };
+  const inputs = { id: document.getElementById('fileId'), idGallery: document.getElementById('fileIdGallery'),
+                   selfie: document.getElementById('fileSelfie') };
+  const redraw = kind => { document.getElementById(kind + 'Block').innerHTML = photoBlock(kind); wirePhotos(); };
+  function wirePhotos() {
+    app.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => inputs[b.dataset.pick].click());
+    // "Change" on the ID: forget it and show both choices again (camera / gallery).
+    app.querySelectorAll('[data-retake]').forEach(b => b.onclick = () => {
+      const kind = b.dataset.retake;
+      if (kind === 'id') { URL.revokeObjectURL(photos.id.url); photos.id = null; redraw('id'); } else inputs[kind].click();
+    });
+  }
+  for (const key of ['id', 'idGallery', 'selfie']) {
+    const kind = key === 'idGallery' ? 'id' : key;
+    inputs[key].onchange = async () => {
+      const f = inputs[key].files && inputs[key].files[0]; if (!f) return;
+      try {
+        const blob = await shrinkPhoto(f);
+        if (photos[kind]) URL.revokeObjectURL(photos[kind].url);
+        photos[kind] = { blob, url: URL.createObjectURL(blob) };
+        redraw(kind);
+      } catch (e) { toast('This photo could not be read. Try again.'); }
+      inputs[key].value = '';
+    };
+  }
+  wirePhotos();
+  document.getElementById('send').onclick = send;
+}
+
+const val = id => (document.getElementById(id)?.value || '').trim();
+function problem() {
+  if (val('full_name').length < 2) return 'Enter your full name.';
+  const ph = val('phone').replace(/\D/g, '');
+  if (ph.length < 10 || ph.length > 15) return 'Enter your 10-digit mobile number.';
+  if (!val('gender') || !val('food')) return 'Choose your gender and food.';
+  if (!val('adult')) return 'Tell us if you are 18 or older.';
+  if (val('adult') === 'no' && (val('guardian_name').length < 2 || val('guardian_phone').replace(/\D/g, '').length < 10))
+    return 'Under 18: enter your parent or guardian name and mobile.';
+  if (val('home_pincode') && !/^[1-9][0-9]{5}$/.test(val('home_pincode'))) return 'Pincode should be 6 digits.';
+  if (!val('home_state')) return 'Choose your state.';
+  if (!val('id_type')) return 'Choose your ID type.';
+  if (!photos.id) return 'Add a photo of your ID.';
+  if (!photos.selfie) return 'Take a selfie.';
+  if (!document.getElementById('rules_ok').checked) return 'Please accept the house rules.';
+  if (!document.getElementById('consent_ok').checked) return 'Please tick "I agree" in the consent.';
+  return null;
+}
+
+async function upload(folder, kind, blob) {
+  const name = `${kind}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}.jpg`;
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/join-docs/${folder}/${name}`, { method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'image/jpeg', 'x-upsert': 'false' },
+    body: blob });
+  if (!r.ok) throw new Error('The photo could not be sent. Check your internet and try again.');
+  return name;
+}
+
+async function send() {
+  const msg = document.getElementById('msg'); const btn = document.getElementById('send');
+  const p = problem();
+  if (p) { msg.innerHTML = `<div class="msg">${esc(p)}</div>`; return; }
+  msg.innerHTML = ''; btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    let draft = JSON.parse(read('pgjoin_' + code) || 'null');
+    if (!draft) { draft = await rpc('join_start', { p_code: code, p_device: deviceId }); store('pgjoin_' + code, JSON.stringify(draft)); }
+    const idFile = await upload(draft.folder, 'id', photos.id.blob);
+    const selfieFile = await upload(draft.folder, 'selfie', photos.selfie.blob);
+    const res = await rpc('join_submit', { p_secret: draft.secret, p_data: {
+      full_name: val('full_name'), phone: val('phone'), email: val('email'), gender: val('gender'), food: val('food'),
+      tea: val('tea'), is_adult: val('adult') === 'yes', guardian_name: val('guardian_name'), guardian_phone: val('guardian_phone'),
+      home_address: val('home_address'), home_city: val('home_city'), home_state: val('home_state'), home_pincode: val('home_pincode'),
+      emergency: val('emergency'), id_type: val('id_type'), id_file: idFile, selfie_file: selfieFile,
+      rules_ok: true, consent_ok: true, consent_version: CONSENT_VERSION } });
+    store('pgjoin_' + code, null);
+    app.innerHTML = `<div class="ok-box"><div class="big">✅</div><h1>Sent!</h1>
+      <p class="sub">The manager of ${esc(info.pg_name)} will check your details and confirm your bed.
+      You will get a WhatsApp message with your personal link.</p><p class="note">Reference: <b>${esc(res.ref)}</b></p></div>`;
+  } catch (e) {
+    if (/expired|already sent/i.test(e.message)) store('pgjoin_' + code, null);
+    msg.innerHTML = `<div class="msg">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = 'Send to PG manager';
+  }
+}
+
+// Make the photo small (longest side 1024 px, JPG) so it uploads fast on mobile data.
+function shrinkPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(); const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 1024, k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const tryQ = q => c.toBlob(b => { if (!b) return reject(new Error('photo'));
+        if (b.size > 350000 && q > 0.4) return tryQ(q - 0.15); resolve(b); }, 'image/jpeg', q);
+      tryQ(0.8);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('photo')); };
+    img.src = url;
+  });
+}
+
+async function start() {
+  if (!/^[0-9a-f]{16}$/.test(code)) { app.innerHTML = '<h1>Joining link missing</h1><p class="sub">Please scan the QR code at the PG counter again.</p>'; return; }
+  try { info = await rpc('join_info', { p_code: code }); } catch (e) { app.innerHTML = `<h1>Can't open</h1><div class="msg">${esc(e.message)}</div>`; return; }
+  if (!info) { app.innerHTML = '<h1>This QR is not valid</h1><p class="sub">Please ask the PG manager for the new joining QR.</p>'; return; }
+  document.title = 'Join ' + info.pg_name;
+  if (qs.get('poster') === '1') showPoster(info); else renderForm();
+}
+start();
+</script>
+</body>
+</html>
