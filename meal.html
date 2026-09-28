@@ -95,6 +95,9 @@
   @keyframes blink { 50% { opacity: .2; } }
   .poster { text-align: center; padding: 20px 10px; } .poster svg { width: min(78vw, 360px); height: auto; }
   @media print { .noprint { display: none; } }
+  a.btn { display: block; text-align: center; text-decoration: none; line-height: 28px; box-sizing: border-box; }
+  .due { border-top: 1px solid var(--line); padding: 10px 0; } .due:first-of-type { border-top: 0; }
+  .due .amt { font-size: 22px; font-weight: 800; color: var(--turmeric); }
 </style>
 </head>
 <body>
@@ -110,6 +113,7 @@ const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
 const LANGS = [['en', 'English'], ['te', 'తెలుగు'], ['kn', 'ಕನ್ನಡ'], ['hi', 'हिन्दी']];
 const T = {
   en: {
+    rent_title: 'Rent', rent_due: 'Due {d}', rent_pay: 'Pay {a} by UPI', rent_paid: 'I have paid', rent_wait: 'Sent ✓ Waiting for PG manager to confirm', rent_utr: 'UPI reference number (optional)', rent_send: 'Send to PG manager', rent_cash: 'Pay your PG manager (UPI not set up).', rent_token: 'Token advance', rent_for: 'Rent {p}', rent_rej: 'Manager could not find this payment. Please talk to them.', 
     pass_ok: 'Enjoy your meal!', pass_already: 'Already served at {t}', pass_nomeal: 'No meal is being served now.', pass_notguest: 'Not registered on this phone. Only guests of this PG get food. Guests: log in below.', pass_back: 'Back to my meals', pass_skipped: 'You had switched this meal off - please update your meals next time.', 
     phoneVerified: 'Your phone is verified ✓', reportOff: 'Reporting is turned off for you. Please talk to your PG manager.',
     needLink: 'To report a problem, open the personal link your PG manager sent you on WhatsApp. If you did not get it, ask them to send it.',
@@ -153,6 +157,7 @@ const T = {
     ],
   },
   te: {
+    rent_title: 'అద్దె', rent_due: 'గడువు {d}', rent_pay: 'UPI తో {a} చెల్లించండి', rent_paid: 'నేను చెల్లించాను', rent_wait: 'పంపాం ✓ PG మేనేజర్ నిర్ధారణ కోసం వేచి ఉంది', rent_utr: 'UPI రిఫరెన్స్ నంబర్ (ఐచ్ఛికం)', rent_send: 'PG మేనేజర్‌కు పంపండి', rent_cash: 'మీ PG మేనేజర్‌కు చెల్లించండి (UPI సెట్ చేయలేదు).', rent_token: 'టోకెన్ అడ్వాన్స్', rent_for: 'అద్దె {p}', rent_rej: 'మేనేజర్ ఈ చెల్లింపును కనుగొనలేకపోయారు. దయచేసి వారితో మాట్లాడండి.', 
     pass_ok: 'భోజనం ఆనందించండి!', pass_already: 'ఇప్పటికే {t} కి వడ్డించారు', pass_nomeal: 'ఇప్పుడు భోజనం వడ్డించడం లేదు.', pass_notguest: 'ఈ ఫోన్ నమోదు కాలేదు. ఈ PG అతిథులకు మాత్రమే భోజనం. అతిథులు: కింద లాగిన్ అవ్వండి.', pass_back: 'నా భోజనాలకు తిరిగి', pass_skipped: 'మీరు ఈ భోజనాన్ని ఆపివేశారు - తదుపరిసారి అప్‌డేట్ చేయండి.', 
     phoneVerified: 'మీ ఫోన్ ధృవీకరించబడింది ✓', reportOff: 'మీకు ఫిర్యాదు చేసే సౌకర్యం ఆపివేయబడింది. దయచేసి మీ PG మేనేజర్‌తో మాట్లాడండి.',
     needLink: 'సమస్య తెలియజేయడానికి, మీ PG మేనేజర్ WhatsApp లో పంపిన మీ వ్యక్తిగత లింక్‌ను తెరవండి. మీకు రాకపోతే, పంపమని వారిని అడగండి.',
@@ -196,6 +201,7 @@ const T = {
     ],
   },
   kn: {
+    rent_title: 'ಬಾಡಿಗೆ', rent_due: 'ಕೊನೆ ದಿನ {d}', rent_pay: 'UPI ಮೂಲಕ {a} ಪಾವತಿಸಿ', rent_paid: 'ನಾನು ಪಾವತಿಸಿದ್ದೇನೆ', rent_wait: 'ಕಳುಹಿಸಲಾಗಿದೆ ✓ PG ಮ್ಯಾನೇಜರ್ ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯುತ್ತಿದೆ', rent_utr: 'UPI ರೆಫರೆನ್ಸ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)', rent_send: 'PG ಮ್ಯಾನೇಜರ್‌ಗೆ ಕಳುಹಿಸಿ', rent_cash: 'ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್‌ಗೆ ಪಾವತಿಸಿ (UPI ಹೊಂದಿಸಿಲ್ಲ).', rent_token: 'ಟೋಕನ್ ಮುಂಗಡ', rent_for: 'ಬಾಡಿಗೆ {p}', rent_rej: 'ಮ್ಯಾನೇಜರ್‌ಗೆ ಈ ಪಾವತಿ ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಅವರೊಂದಿಗೆ ಮಾತನಾಡಿ.', 
     pass_ok: 'ಊಟವನ್ನು ಆನಂದಿಸಿ!', pass_already: 'ಈಗಾಗಲೇ {t} ಕ್ಕೆ ಬಡಿಸಲಾಗಿದೆ', pass_nomeal: 'ಈಗ ಊಟ ಬಡಿಸುತ್ತಿಲ್ಲ.', pass_notguest: 'ಈ ಫೋನ್ ನೋಂದಾಯಿಸಿಲ್ಲ. ಈ PG ಅತಿಥಿಗಳಿಗೆ ಮಾತ್ರ ಊಟ. ಅತಿಥಿಗಳು: ಕೆಳಗೆ ಲಾಗಿನ್ ಆಗಿ.', pass_back: 'ನನ್ನ ಊಟಕ್ಕೆ ಹಿಂತಿರುಗಿ', pass_skipped: 'ನೀವು ಈ ಊಟವನ್ನು ಆಫ್ ಮಾಡಿದ್ದಿರಿ - ಮುಂದಿನ ಬಾರಿ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ.', 
     phoneVerified: 'ನಿಮ್ಮ ಫೋನ್ ದೃಢೀಕರಿಸಲಾಗಿದೆ ✓', reportOff: 'ನಿಮಗೆ ದೂರು ನೀಡುವುದನ್ನು ನಿಲ್ಲಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಜೊತೆ ಮಾತನಾಡಿ.',
     needLink: 'ಸಮಸ್ಯೆ ತಿಳಿಸಲು, ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ WhatsApp ನಲ್ಲಿ ಕಳುಹಿಸಿದ ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಲಿಂಕ್ ತೆರೆಯಿರಿ. ಬಂದಿಲ್ಲದಿದ್ದರೆ, ಕಳುಹಿಸಲು ಅವರನ್ನು ಕೇಳಿ.',
@@ -239,6 +245,7 @@ const T = {
     ],
   },
   hi: {
+    rent_title: 'किराया', rent_due: 'अंतिम तिथि {d}', rent_pay: 'UPI से {a} भरें', rent_paid: 'मैंने भुगतान कर दिया', rent_wait: 'भेजा गया ✓ PG मैनेजर की पुष्टि का इंतज़ार', rent_utr: 'UPI रेफरेंस नंबर (वैकल्पिक)', rent_send: 'PG मैनेजर को भेजें', rent_cash: 'अपने PG मैनेजर को भुगतान करें (UPI सेट नहीं है)।', rent_token: 'टोकन एडवांस', rent_for: 'किराया {p}', rent_rej: 'मैनेजर को यह भुगतान नहीं मिला। कृपया उनसे बात करें।', 
     pass_ok: 'भोजन का आनंद लें!', pass_already: 'पहले ही {t} बजे परोसा गया', pass_nomeal: 'अभी भोजन नहीं परोसा जा रहा है।', pass_notguest: 'यह फ़ोन पंजीकृत नहीं है। केवल इस PG के गेस्ट को भोजन मिलता है। गेस्ट: नीचे लॉगिन करें।', pass_back: 'मेरे भोजन पर वापस', pass_skipped: 'आपने यह भोजन बंद किया था - अगली बार अपडेट करें।', 
     phoneVerified: 'आपका फ़ोन सत्यापित हो गया ✓', reportOff: 'आपके लिए शिकायत दर्ज करना बंद है। कृपया अपने PG मैनेजर से बात करें।',
     needLink: 'समस्या बताने के लिए, अपने PG मैनेजर द्वारा WhatsApp पर भेजा गया अपना निजी लिंक खोलें। अगर नहीं मिला, तो उनसे भेजने को कहें।',
@@ -465,6 +472,7 @@ function renderLogin(message, keep) {
 // ---------- Step 2: meals ----------
 let state = null;
 let issues = [];
+let rent = null;      // rent due now (UPI)
 let status = { verified: false, can_report: true };   // is this phone verified by the personal link?
 let probCat = null;
 let probPhoto = null;   // { blob, url } after shrinking
@@ -475,6 +483,7 @@ async function showMeals() {
   try { state = await rpc('vote_get', { p_token: token() }); }
   catch (e) { setToken(null); state = null; return showLogin(e.message); }
   try { issues = await rpc('vote_issues', { p_token: token() }); } catch (e) { issues = []; }
+  try { rent = await rpc('vote_rent', { p_token: token() }); } catch (e) { rent = null; }
   try { status = await rpc('vote_status', { p_token: token() }); } catch (e) { status = { verified: false, can_report: true }; }
   render();
 }
@@ -510,6 +519,7 @@ function render() {
     <p class="sub">${esc(s.pg_name)} · ${t('room')} ${esc(s.room)}-${esc(s.bed)}<br>
       ${t('howTo', { cutoff: `<b>${esc(s.cutoff)}</b>` })}</p>
     ${ownerTip(s.note)}
+    ${rentCard()}
     ${todayTip()}
     ${days}
     ${problemCard()}
@@ -534,10 +544,48 @@ function render() {
     } catch (e) { btn.disabled = false; toast(e.message); }
   });
   wireProblemCard();
+  wireRentCard();
   document.getElementById('notme').onclick = async () => {
     try { await rpc('vote_logout', { p_token: token() }); } catch (e) {}
     setToken(null); state = null; loginData = null; showLogin();
   };
+}
+
+
+// ---------- Rent by UPI ----------
+const inr = n => '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+function rentCard() {
+  if (!rent || !rent.dues || !rent.dues.length) return '';
+  const rows = rent.dues.map(d => {
+    const label = d.kind === 'token' ? t('rent_token')
+      : t('rent_for', { p: d.period_start ? `${dayName(d.period_start, false)} - ${dayName(d.period_end, false)}` : '' });
+    let action;
+    if (d.claim === 'pending') action = `<span class="pill ok">${t('rent_wait')}</span>`;
+    else if (!rent.upi_id) action = `<p class="note">${t('rent_cash')}</p>`;
+    else {
+      const url = 'upi://pay?pa=' + encodeURIComponent(rent.upi_id) + '&pn=' + encodeURIComponent(rent.upi_name || 'PG')
+        + '&am=' + Number(d.balance).toFixed(2) + '&cu=INR&tn=' + encodeURIComponent('Rent ' + (state.room || '') + '-' + (state.bed || ''));
+      action = `${d.claim === 'rejected' ? `<p class="msg">${t('rent_rej')}</p>` : ''}
+        <a class="btn all" href="${esc(url)}">${t('rent_pay', { a: inr(d.balance) })}</a>
+        <button class="btn all ghost" data-paid="${esc(d.id)}">${t('rent_paid')}</button>
+        <div id="paid-${esc(d.id)}" hidden><input class="t2" style="width:100%;min-height:44px;margin-top:10px" maxlength="40"
+          placeholder="${t('rent_utr')}"><button class="btn all" data-send="${esc(d.id)}">${t('rent_send')}</button></div>`;
+    }
+    return `<div class="due"><div class="day-head"><div><b>${esc(label)}</b><br><small class="note">${t('rent_due', { d: esc(dayName(d.due_date, false)) })}</small></div>
+      <div class="amt">${inr(d.balance)}</div></div>${action}</div>`;
+  }).join('');
+  return `<section class="card" aria-label="${t('rent_title')}"><div class="day-title">💰 ${t('rent_title')}</div>${rows}</section>`;
+}
+function wireRentCard() {
+  app.querySelectorAll('button[data-paid]').forEach(b => b.onclick = () => {
+    const box = document.getElementById('paid-' + b.dataset.paid); box.hidden = false; b.hidden = true;
+  });
+  app.querySelectorAll('button[data-send]').forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    const utr = b.previousElementSibling.value;
+    try { rent = await rpc('vote_rent_claim', { p_token: token(), p_due: b.dataset.send, p_utr: utr }); render(); toast(t('rent_wait')); }
+    catch (e) { b.disabled = false; toast(e.message); }
+  });
 }
 
 // ---------- Problem in the room (maintenance) ----------
