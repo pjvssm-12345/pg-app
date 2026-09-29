@@ -98,6 +98,29 @@
   a.btn { display: block; text-align: center; text-decoration: none; line-height: 28px; box-sizing: border-box; }
   .due { border-top: 1px solid var(--line); padding: 10px 0; } .due:first-of-type { border-top: 0; }
   .due .amt { font-size: 22px; font-weight: 800; color: var(--turmeric); }
+  /* ---- Polish (29 Sep): hero header, softer cards ---- */
+  body { background: linear-gradient(180deg, #E4EFE8 0, var(--bg) 280px) no-repeat, var(--bg); }
+  .card { border-color: #E3E9E5; border-radius: 16px; padding: 16px;
+    box-shadow: 0 1px 2px rgba(20,50,35,.05), 0 6px 18px rgba(20,50,35,.06); }
+  .btn { box-shadow: 0 2px 8px rgba(47,107,79,.22); transition: transform .08s, box-shadow .15s; }
+  .btn:active { transform: scale(.98); }
+  .btn.ghost, .btn.done, .btn:disabled { box-shadow: none; }
+  .hero { position: relative; overflow: hidden; color: #fff; border-radius: 20px; padding: 18px 18px 16px; margin: 8px 0 14px;
+    background: linear-gradient(135deg, #2F6B4F 0%, #1F4E3A 100%); box-shadow: 0 10px 26px rgba(31,78,58,.28); }
+  .hero::before { content: ""; position: absolute; right: -46px; top: -46px; width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,.08); }
+  .hero::after { content: ""; position: absolute; right: 28px; bottom: -70px; width: 130px; height: 130px; border-radius: 50%;
+    background: rgba(255,255,255,.06); }
+  .hero > * { position: relative; z-index: 1; }
+  .hero .brand { font-size: 13px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; opacity: .9; }
+  .hero h1 { color: #fff; font-size: 26px; margin: 4px 0 10px; }
+  .hero .chips2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hero .chip { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.24); padding: 4px 12px;
+    border-radius: 999px; font-size: 14px; font-weight: 600; }
+  .due .pill { white-space: normal; }
+  .rep .pill { align-self: flex-start; height: fit-content; }
+  .foot { text-align: center; color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+  .foot b { color: var(--leaf); }
 </style>
 </head>
 <body>
@@ -113,6 +136,7 @@ const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
 const LANGS = [['en', 'English'], ['te', 'తెలుగు'], ['kn', 'ಕನ್ನಡ'], ['hi', 'हिन्दी']];
 const T = {
   en: {
+    notices_title: 'Notices', rent_early: 'Pay by {d}: {a} (save {s})', fixnote: 'Note', 
     rent_title: 'Rent', rent_due: 'Due {d}', rent_pay: 'Pay {a} by UPI', rent_paid: 'I have paid', rent_wait: 'Sent ✓ Waiting for PG manager to confirm', rent_utr: 'UPI reference number (optional)', rent_send: 'Send to PG manager', rent_cash: 'Pay your PG manager (UPI not set up).', rent_token: 'Token advance', rent_for: 'Rent {p}', rent_rej: 'Manager could not find this payment. Please talk to them.', 
     pass_ok: 'Enjoy your meal!', pass_already: 'Already served at {t}', pass_nomeal: 'No meal is being served now.', pass_notguest: 'Not registered on this phone. Only guests of this PG get food. Guests: log in below.', pass_back: 'Back to my meals', pass_skipped: 'You had switched this meal off - please update your meals next time.', 
     phoneVerified: 'Your phone is verified ✓', reportOff: 'Reporting is turned off for you. Please talk to your PG manager.',
@@ -157,6 +181,7 @@ const T = {
     ],
   },
   te: {
+    notices_title: 'ప్రకటనలు', rent_early: '{d} లోపు చెల్లిస్తే: {a} ({s} ఆదా)', fixnote: 'గమనిక', 
     rent_title: 'అద్దె', rent_due: 'గడువు {d}', rent_pay: 'UPI తో {a} చెల్లించండి', rent_paid: 'నేను చెల్లించాను', rent_wait: 'పంపాం ✓ PG మేనేజర్ నిర్ధారణ కోసం వేచి ఉంది', rent_utr: 'UPI రిఫరెన్స్ నంబర్ (ఐచ్ఛికం)', rent_send: 'PG మేనేజర్‌కు పంపండి', rent_cash: 'మీ PG మేనేజర్‌కు చెల్లించండి (UPI సెట్ చేయలేదు).', rent_token: 'టోకెన్ అడ్వాన్స్', rent_for: 'అద్దె {p}', rent_rej: 'మేనేజర్ ఈ చెల్లింపును కనుగొనలేకపోయారు. దయచేసి వారితో మాట్లాడండి.', 
     pass_ok: 'భోజనం ఆనందించండి!', pass_already: 'ఇప్పటికే {t} కి వడ్డించారు', pass_nomeal: 'ఇప్పుడు భోజనం వడ్డించడం లేదు.', pass_notguest: 'ఈ ఫోన్ నమోదు కాలేదు. ఈ PG అతిథులకు మాత్రమే భోజనం. అతిథులు: కింద లాగిన్ అవ్వండి.', pass_back: 'నా భోజనాలకు తిరిగి', pass_skipped: 'మీరు ఈ భోజనాన్ని ఆపివేశారు - తదుపరిసారి అప్‌డేట్ చేయండి.', 
     phoneVerified: 'మీ ఫోన్ ధృవీకరించబడింది ✓', reportOff: 'మీకు ఫిర్యాదు చేసే సౌకర్యం ఆపివేయబడింది. దయచేసి మీ PG మేనేజర్‌తో మాట్లాడండి.',
@@ -201,6 +226,7 @@ const T = {
     ],
   },
   kn: {
+    notices_title: 'ಸೂಚನೆಗಳು', rent_early: '{d} ಒಳಗೆ ಪಾವತಿಸಿದರೆ: {a} ({s} ಉಳಿತಾಯ)', fixnote: 'ಟಿಪ್ಪಣಿ', 
     rent_title: 'ಬಾಡಿಗೆ', rent_due: 'ಕೊನೆ ದಿನ {d}', rent_pay: 'UPI ಮೂಲಕ {a} ಪಾವತಿಸಿ', rent_paid: 'ನಾನು ಪಾವತಿಸಿದ್ದೇನೆ', rent_wait: 'ಕಳುಹಿಸಲಾಗಿದೆ ✓ PG ಮ್ಯಾನೇಜರ್ ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯುತ್ತಿದೆ', rent_utr: 'UPI ರೆಫರೆನ್ಸ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)', rent_send: 'PG ಮ್ಯಾನೇಜರ್‌ಗೆ ಕಳುಹಿಸಿ', rent_cash: 'ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್‌ಗೆ ಪಾವತಿಸಿ (UPI ಹೊಂದಿಸಿಲ್ಲ).', rent_token: 'ಟೋಕನ್ ಮುಂಗಡ', rent_for: 'ಬಾಡಿಗೆ {p}', rent_rej: 'ಮ್ಯಾನೇಜರ್‌ಗೆ ಈ ಪಾವತಿ ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಅವರೊಂದಿಗೆ ಮಾತನಾಡಿ.', 
     pass_ok: 'ಊಟವನ್ನು ಆನಂದಿಸಿ!', pass_already: 'ಈಗಾಗಲೇ {t} ಕ್ಕೆ ಬಡಿಸಲಾಗಿದೆ', pass_nomeal: 'ಈಗ ಊಟ ಬಡಿಸುತ್ತಿಲ್ಲ.', pass_notguest: 'ಈ ಫೋನ್ ನೋಂದಾಯಿಸಿಲ್ಲ. ಈ PG ಅತಿಥಿಗಳಿಗೆ ಮಾತ್ರ ಊಟ. ಅತಿಥಿಗಳು: ಕೆಳಗೆ ಲಾಗಿನ್ ಆಗಿ.', pass_back: 'ನನ್ನ ಊಟಕ್ಕೆ ಹಿಂತಿರುಗಿ', pass_skipped: 'ನೀವು ಈ ಊಟವನ್ನು ಆಫ್ ಮಾಡಿದ್ದಿರಿ - ಮುಂದಿನ ಬಾರಿ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ.', 
     phoneVerified: 'ನಿಮ್ಮ ಫೋನ್ ದೃಢೀಕರಿಸಲಾಗಿದೆ ✓', reportOff: 'ನಿಮಗೆ ದೂರು ನೀಡುವುದನ್ನು ನಿಲ್ಲಿಸಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ PG ಮ್ಯಾನೇಜರ್ ಜೊತೆ ಮಾತನಾಡಿ.',
@@ -245,6 +271,7 @@ const T = {
     ],
   },
   hi: {
+    notices_title: 'सूचनाएँ', rent_early: '{d} तक भुगतान करें: {a} ({s} की बचत)', fixnote: 'नोट', 
     rent_title: 'किराया', rent_due: 'अंतिम तिथि {d}', rent_pay: 'UPI से {a} भरें', rent_paid: 'मैंने भुगतान कर दिया', rent_wait: 'भेजा गया ✓ PG मैनेजर की पुष्टि का इंतज़ार', rent_utr: 'UPI रेफरेंस नंबर (वैकल्पिक)', rent_send: 'PG मैनेजर को भेजें', rent_cash: 'अपने PG मैनेजर को भुगतान करें (UPI सेट नहीं है)।', rent_token: 'टोकन एडवांस', rent_for: 'किराया {p}', rent_rej: 'मैनेजर को यह भुगतान नहीं मिला। कृपया उनसे बात करें।', 
     pass_ok: 'भोजन का आनंद लें!', pass_already: 'पहले ही {t} बजे परोसा गया', pass_nomeal: 'अभी भोजन नहीं परोसा जा रहा है।', pass_notguest: 'यह फ़ोन पंजीकृत नहीं है। केवल इस PG के गेस्ट को भोजन मिलता है। गेस्ट: नीचे लॉगिन करें।', pass_back: 'मेरे भोजन पर वापस', pass_skipped: 'आपने यह भोजन बंद किया था - अगली बार अपडेट करें।', 
     phoneVerified: 'आपका फ़ोन सत्यापित हो गया ✓', reportOff: 'आपके लिए शिकायत दर्ज करना बंद है। कृपया अपने PG मैनेजर से बात करें।',
@@ -334,6 +361,18 @@ if (!deviceId) {
 let memToken = null; // fallback when the browser blocks storage
 const token = () => read(storeKey) || memToken;
 function setToken(v) { store(storeKey, v); memToken = v; }
+
+// Monitoring: report page crashes to app_errors (update_031). Page path only, no personal data.
+function logErr(m, d) {
+  try {
+    fetch(`${SUPABASE_URL}/rest/v1/rpc/log_error`, { method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_source: 'meal', p_message: String(m || '?').slice(0, 500),
+        p_detail: String(d || '').slice(0, 2000), p_page: location.pathname }) }).catch(() => {});
+  } catch (e) {}
+}
+window.addEventListener('error', e => logErr(e.message, (e.filename || '') + ':' + (e.lineno || '')));
+window.addEventListener('unhandledrejection', e => logErr(e.reason && e.reason.message || e.reason, e.reason && e.reason.stack));
 
 async function rpc(fn, body) {
   let r;
@@ -473,6 +512,7 @@ function renderLogin(message, keep) {
 let state = null;
 let issues = [];
 let rent = null;      // rent due now (UPI)
+let notices = [];     // owner's notices
 let status = { verified: false, can_report: true };   // is this phone verified by the personal link?
 let probCat = null;
 let probPhoto = null;   // { blob, url } after shrinking
@@ -484,6 +524,7 @@ async function showMeals() {
   catch (e) { setToken(null); state = null; return showLogin(e.message); }
   try { issues = await rpc('vote_issues', { p_token: token() }); } catch (e) { issues = []; }
   try { rent = await rpc('vote_rent', { p_token: token() }); } catch (e) { rent = null; }
+  try { notices = await rpc('vote_notices', { p_token: token() }); } catch (e) { notices = []; }
   try { status = await rpc('vote_status', { p_token: token() }); } catch (e) { status = { verified: false, can_report: true }; }
   render();
 }
@@ -515,15 +556,22 @@ function render() {
   }).join('');
   app.innerHTML = `
     ${langBar()}
-    <h1>${t('hi', { name: esc(s.name) })}</h1>
-    <p class="sub">${esc(s.pg_name)} · ${t('room')} ${esc(s.room)}-${esc(s.bed)}<br>
-      ${t('howTo', { cutoff: `<b>${esc(s.cutoff)}</b>` })}</p>
+    <header class="hero">
+      <div class="brand">🏠 ${esc(s.pg_name)}</div>
+      <h1>${t('hi', { name: esc(s.name) })}</h1>
+      <div class="chips2"><span class="chip">🛏️ ${t('room')} ${esc(s.room)}-${esc(s.bed)}</span>
+        <span class="chip">📅 ${new Date().toLocaleDateString(LOCALE[lang] || 'en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</span></div>
+    </header>
+    <p class="sub">${t('howTo', { cutoff: `<b>${esc(s.cutoff)}</b>` })}</p>
+    ${noticesCard()}
     ${ownerTip(s.note)}
     ${rentCard()}
     ${todayTip()}
     ${days}
     ${problemCard()}
-    <p class="center"><button class="link" id="notme">${t('notMe', { name: esc(s.name) })}</button></p>`;
+    <p class="center"><button class="link" id="notme">${t('notMe', { name: esc(s.name) })}</button></p>
+    <p class="foot">${esc(s.pg_name)} · powered by <b>PG Manager</b></p>`;
+  document.title = s.pg_name;
   wireLangBar(render);
 
   app.querySelectorAll('input[type=checkbox]').forEach(el => el.onchange = async () => {
@@ -552,6 +600,16 @@ function render() {
 }
 
 
+
+// ---------- Notices from the PG ----------
+function noticesCard() {
+  if (!notices || !notices.length) return '';
+  return `<section class="card" aria-label="${t('notices_title')}"><div class="day-title">📢 ${t('notices_title')}</div>
+    ${notices.map(n => `<div class="due">${n.pinned ? '📌 ' : ''}<span style="white-space:pre-line">${esc(n.body)}</span>
+      <br><small class="note">${esc(dayName(String(n.at).slice(0, 10), false))}${n.by ? ' · ' + esc(n.by) : ''}</small></div>`).join('')}
+  </section>`;
+}
+
 // ---------- Rent by UPI ----------
 const inr = n => '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 function rentCard() {
@@ -563,10 +621,12 @@ function rentCard() {
     if (d.claim === 'pending') action = `<span class="pill ok">${t('rent_wait')}</span>`;
     else if (!rent.upi_id) action = `<p class="note">${t('rent_cash')}</p>`;
     else {
+      const pay = d.discount ? Number(d.balance) - Number(d.discount) : Number(d.balance);
       const url = 'upi://pay?pa=' + encodeURIComponent(rent.upi_id) + '&pn=' + encodeURIComponent(rent.upi_name || 'PG')
-        + '&am=' + Number(d.balance).toFixed(2) + '&cu=INR&tn=' + encodeURIComponent('Rent ' + (state.room || '') + '-' + (state.bed || ''));
+        + '&am=' + pay.toFixed(2) + '&cu=INR&tn=' + encodeURIComponent('Rent ' + (state.room || '') + '-' + (state.bed || ''));
       action = `${d.claim === 'rejected' ? `<p class="msg">${t('rent_rej')}</p>` : ''}
-        <a class="btn all" href="${esc(url)}">${t('rent_pay', { a: inr(d.balance) })}</a>
+        ${d.discount ? `<p class="pill ok" style="display:inline-block;margin:8px 0 0">🎉 ${t('rent_early', { d: esc(dayName(d.early_by, false)), a: inr(pay), s: inr(d.discount) })}</p>` : ''}
+        <a class="btn all" href="${esc(url)}">${t('rent_pay', { a: inr(pay) })}</a>
         <button class="btn all ghost" data-paid="${esc(d.id)}">${t('rent_paid')}</button>
         <div id="paid-${esc(d.id)}" hidden><input class="t2" style="width:100%;min-height:44px;margin-top:10px" maxlength="40"
           placeholder="${t('rent_utr')}"><button class="btn all" data-send="${esc(d.id)}">${t('rent_send')}</button></div>`;
@@ -596,7 +656,7 @@ function problemCard() {
     ? `<div class="photo-row"><img src="${probPhoto.url}" alt=""><span>${t('photoAdded')}</span><button class="link" id="probPhotoDel">${t('removePhoto')}</button></div>`
     : `<div class="photo-row"><button class="btn ghost small" id="probPhotoBtn">${t('addPhoto')}</button></div>`;
   const list = issues.length ? `<div style="margin-top:12px"><b>${t('yourReports')}</b>${issues.map(i =>
-      `<div class="rep"><span>${esc(t('cat_' + i.category))} · ${esc(dayName(String(i.created_at).slice(0, 10), false))}</span>${pill(i.status)}</div>`).join('')}</div>` : '';
+      `<div class="rep"><span>${esc(t('cat_' + i.category))} · ${esc(dayName(String(i.created_at).slice(0, 10), false))}${i.fix_note ? `<br><small class="note">${t('fixnote')}: ${esc(i.fix_note)}</small>` : ''}</span>${pill(i.status)}</div>`).join('')}</div>` : '';
   if (status.reports_on === false) return '';   // owner switched off guest reports
   if (!status.verified || status.can_report === false) {
     return `<section class="card" id="prob" aria-label="${t('probTitle')}">

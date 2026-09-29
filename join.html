@@ -105,6 +105,28 @@
   .poster h1 { font-size: 30px; }
   .poster #qr img, .poster #qr svg { width: min(78vw, 360px); height: auto; }
   @media print { .noprint { display: none; } }
+  /* ---- Polish (29 Sep): hero header, softer cards ---- */
+  body { background: linear-gradient(180deg, #E4EFE8 0, var(--bg) 280px) no-repeat, var(--bg); }
+  .card { border-color: #E3E9E5; border-radius: 16px; padding: 16px;
+    box-shadow: 0 1px 2px rgba(20,50,35,.05), 0 6px 18px rgba(20,50,35,.06); }
+  .btn { box-shadow: 0 2px 8px rgba(47,107,79,.22); transition: transform .08s, box-shadow .15s; }
+  .btn:active { transform: scale(.98); }
+  .btn.ghost, .btn.done, .btn:disabled { box-shadow: none; }
+  .hero { position: relative; overflow: hidden; color: #fff; border-radius: 20px; padding: 18px 18px 16px; margin: 8px 0 14px;
+    background: linear-gradient(135deg, #2F6B4F 0%, #1F4E3A 100%); box-shadow: 0 10px 26px rgba(31,78,58,.28); }
+  .hero::before { content: ""; position: absolute; right: -46px; top: -46px; width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,.08); }
+  .hero::after { content: ""; position: absolute; right: 28px; bottom: -70px; width: 130px; height: 130px; border-radius: 50%;
+    background: rgba(255,255,255,.06); }
+  .hero > * { position: relative; z-index: 1; }
+  .hero .brand { font-size: 13px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; opacity: .9; }
+  .hero h1 { color: #fff; font-size: 26px; margin: 4px 0 10px; }
+  .hero .chips2 { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hero .chip { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.24); padding: 4px 12px;
+    border-radius: 999px; font-size: 14px; font-weight: 600; }
+  .due .pill { white-space: normal; }
+  .foot { text-align: center; color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+  .foot b { color: var(--leaf); }
 </style>
 </head>
 <body>
@@ -125,6 +147,18 @@ function read(k) { try { return localStorage.getItem(k); } catch (e) { return nu
 function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 3500); }
 let deviceId = read('pgmeal_device');
 if (!deviceId) { deviceId = crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now(); store('pgmeal_device', deviceId); }
+
+// Monitoring: report page crashes to app_errors (update_031). Page path only, no personal data.
+function logErr(m, d) {
+  try {
+    fetch(`${SUPABASE_URL}/rest/v1/rpc/log_error`, { method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_source: 'join', p_message: String(m || '?').slice(0, 500),
+        p_detail: String(d || '').slice(0, 2000), p_page: location.pathname }) }).catch(() => {});
+  } catch (e) {}
+}
+window.addEventListener('error', e => logErr(e.message, (e.filename || '') + ':' + (e.lineno || '')));
+window.addEventListener('unhandledrejection', e => logErr(e.reason && e.reason.message || e.reason, e.reason && e.reason.stack));
 
 async function rpc(fn, body) {
   let r;
@@ -195,8 +229,12 @@ function photoBlock(kind) {
 function renderForm() {
   const am = (info.amenities || []).length ? `<div class="am">${info.amenities.map(a => `<span>✓ ${esc(a)}</span>`).join('')}</div>` : '';
   app.innerHTML = `
-    <h1>Join ${esc(info.pg_name)} 🙏</h1>
-    <p class="sub">Fill this on your own phone. It takes about 3 minutes. The manager will confirm your bed.</p>
+    <header class="hero">
+      <div class="brand">🏠 ${esc(info.pg_name)}</div>
+      <h1>Welcome! Join us 🙏</h1>
+      <div class="chips2"><span class="chip">⏱️ About 3 minutes</span><span class="chip">📄 100% paperless</span></div>
+    </header>
+    <p class="sub">Fill this on your own phone. The manager will check it and confirm your bed.</p>
     ${am ? `<section class="card"><h2>What you get</h2>${am}</section>` : ''}
     <section class="card"><h2>1. About you</h2>
       ${field('full_name', 'Full name (as on your ID)', 'text', 'maxlength="100" autocomplete="name"')}
