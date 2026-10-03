@@ -804,8 +804,10 @@ function showCounterPoster() {
     <p class="noprint"><button class="btn" onclick="print()">🖨️ Print this poster</button></p></div>`;
   const sc = document.createElement('script');
   sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+  sc.integrity = 'sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw=='; sc.crossOrigin = 'anonymous';  // refuse the script if cdnjs ever changes it
   sc.onload = () => { const q = qrcode(0, 'M'); q.addData(url); q.make();
     document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }); };
+  sc.onerror = () => { document.getElementById('qr').innerHTML = `<p class="msg">QR could not load. Link: ${esc(url)}</p>`; };
   document.head.appendChild(sc);
 }
 
