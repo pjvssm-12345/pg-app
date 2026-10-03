@@ -121,10 +121,14 @@
   .rep .pill { align-self: flex-start; height: fit-content; }
   .foot { text-align: center; color: var(--muted); font-size: 12px; margin: 6px 0 0; }
   .foot b { color: var(--leaf); }
+  .legal-links { max-width: 480px; margin: 4px auto 28px; text-align: center; font-size: 12px; color: var(--muted); }
+  .legal-links a { color: var(--muted); }
+  @media print { .legal-links { display: none; } }
 </style>
 </head>
 <body>
 <main id="app"><div class="spinner" aria-label="Loading"></div></main>
+<p class="legal-links noprint">Your data is safe with your PG · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html#rights" target="_blank" rel="noopener">Your data rights</a></p>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -159,7 +163,7 @@ const T = {
     fillAll: 'Choose your room and bed, and enter 4 digits.',
     ground: 'Ground floor', floor: 'Floor {n}',
     hi: 'Hi {name} 👋', room: 'Room',
-    howTo: 'Switch off meals you will skip, by {cutoff} the evening before.',
+    howTo: 'You can change only tomorrow\'s meals, until {cutoff} tonight.',
     todaysNote: "Today's note", ownerNote: 'Message from your PG',
     today: 'Today', locked: 'Locked', notStaying: 'Not staying', replied: 'Replied ✓', notReplied: 'Not replied yet',
     breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', eating: 'Eating', skipping: 'Skipping',
@@ -204,7 +208,7 @@ const T = {
     fillAll: 'గది, బెడ్ ఎంచుకుని, 4 అంకెలు నమోదు చేయండి.',
     ground: 'గ్రౌండ్ ఫ్లోర్', floor: 'ఫ్లోర్ {n}',
     hi: 'నమస్తే {name} 👋', room: 'గది',
-    howTo: 'మీరు తినని భోజనాన్ని ముందు రోజు సాయంత్రం {cutoff} లోపు ఆఫ్ చేయండి.',
+    howTo: 'రేపటి భోజనాలను మాత్రమే మార్చగలరు, ఈ రోజు రాత్రి {cutoff} లోపు.',
     todaysNote: 'నేటి సందేశం', ownerNote: 'మీ PG నుండి సందేశం',
     today: 'ఈరోజు', locked: 'లాక్ అయింది', notStaying: 'ఇక్కడ లేరు', replied: 'స్పందించారు ✓', notReplied: 'ఇంకా స్పందించలేదు',
     breakfast: 'టిఫిన్', lunch: 'మధ్యాహ్న భోజనం', dinner: 'రాత్రి భోజనం', eating: 'తింటాను', skipping: 'తినను',
@@ -249,7 +253,7 @@ const T = {
     fillAll: 'ಕೊಠಡಿ ಮತ್ತು ಬೆಡ್ ಆಯ್ಕೆಮಾಡಿ, 4 ಅಂಕೆಗಳನ್ನು ನಮೂದಿಸಿ.',
     ground: 'ನೆಲ ಮಹಡಿ', floor: 'ಮಹಡಿ {n}',
     hi: 'ನಮಸ್ಕಾರ {name} 👋', room: 'ಕೊಠಡಿ',
-    howTo: 'ನೀವು ಬಿಡುವ ಊಟವನ್ನು ಹಿಂದಿನ ದಿನ ಸಂಜೆ {cutoff} ಒಳಗೆ ಆಫ್ ಮಾಡಿ.',
+    howTo: 'ನಾಳೆಯ ಊಟವನ್ನು ಮಾತ್ರ ಬದಲಾಯಿಸಬಹುದು, ಇಂದು ರಾತ್ರಿ {cutoff} ಒಳಗೆ.',
     todaysNote: 'ಇಂದಿನ ಸಂದೇಶ', ownerNote: 'ನಿಮ್ಮ PG ಯಿಂದ ಸಂದೇಶ',
     today: 'ಇಂದು', locked: 'ಲಾಕ್ ಆಗಿದೆ', notStaying: 'ಇಲ್ಲಿ ಇರುವುದಿಲ್ಲ', replied: 'ಉತ್ತರಿಸಿದ್ದೀರಿ ✓', notReplied: 'ಇನ್ನೂ ಉತ್ತರಿಸಿಲ್ಲ',
     breakfast: 'ತಿಂಡಿ', lunch: 'ಮಧ್ಯಾಹ್ನದ ಊಟ', dinner: 'ರಾತ್ರಿ ಊಟ', eating: 'ಬೇಕು', skipping: 'ಬೇಡ',
@@ -294,7 +298,7 @@ const T = {
     fillAll: 'कमरा और बेड चुनें, और 4 अंक डालें।',
     ground: 'ग्राउंड फ़्लोर', floor: 'फ़्लोर {n}',
     hi: 'नमस्ते {name} 👋', room: 'कमरा',
-    howTo: 'जो खाना आप नहीं खाएँगे, उसे एक दिन पहले शाम {cutoff} तक बंद कर दें।',
+    howTo: 'आप केवल कल का खाना बदल सकते हैं, आज रात {cutoff} तक।',
     todaysNote: 'आज का संदेश', ownerNote: 'आपके PG की ओर से संदेश',
     today: 'आज', locked: 'बंद', notStaying: 'यहाँ नहीं हैं', replied: 'जवाब दिया ✓', notReplied: 'अभी जवाब नहीं दिया',
     breakfast: 'नाश्ता', lunch: 'दोपहर का खाना', dinner: 'रात का खाना', eating: 'खाएँगे', skipping: 'नहीं खाएँगे',

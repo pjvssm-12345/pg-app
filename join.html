@@ -127,16 +127,20 @@
   .due .pill { white-space: normal; }
   .foot { text-align: center; color: var(--muted); font-size: 12px; margin: 6px 0 0; }
   .foot b { color: var(--leaf); }
+  .legal-links { max-width: 480px; margin: 4px auto 28px; text-align: center; font-size: 12px; color: var(--muted); }
+  .legal-links a { color: var(--muted); }
+  @media print { .legal-links { display: none; } }
 </style>
 </head>
 <body>
 <main id="app"><div class="spinner" aria-label="Loading"></div></main>
+<p class="legal-links noprint">Your data is safe with your PG · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html#rights" target="_blank" rel="noopener">Your data rights</a></p>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
 // ---- Settings (public values; the database checks every request) ----
 const SUPABASE_URL = 'https://idowfsvjkbatqshkpimg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
-const CONSENT_VERSION = 'v1';
+const CONSENT_VERSION = '2026-10-03';   // = Privacy Policy version the guest agreed to
 const qs = new URLSearchParams(location.search);
 const code = (qs.get('j') || '').trim();
 const app = document.getElementById('app');
@@ -277,6 +281,7 @@ function renderForm() {
     </section>
     <section class="card"><h2>5. Your consent</h2>
       <div class="rules">${esc(consentText(info.pg_name, info.keep_days || 7))}</div>
+      <p class="foot" style="text-align:left">Full details: <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>, including how to see, correct or delete your data.</p>
       <label class="check"><input type="checkbox" id="consent_ok"><span>I agree.</span></label>
     </section>
     <div id="msg"></div>
