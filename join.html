@@ -366,7 +366,7 @@ async function send() {
       emergency: val('emergency'), id_type: val('id_type'), id_file: idFile, selfie_file: selfieFile,
       rules_ok: true, consent_ok: true, consent_version: CONSENT_VERSION } });
     store('pgjoin_' + code, null);
-    app.innerHTML = `<div class="ok-box"><div class="big">✅</div><h1>Sent!</h1>
+    app.innerHTML = `<div class="ok-box"><div class="big">✅</div><h1>Sent successfully!</h1>
       <p class="sub">The manager of ${esc(info.pg_name)} will check your details and confirm your bed.
       You will get a WhatsApp message with your personal link.</p><p class="note">Reference: <b>${esc(res.ref)}</b></p></div>`;
   } catch (e) {
