@@ -9,6 +9,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="PG Manager: rooms, rent, meals and repairs for PG owners, in one place.">
   <meta name="theme-color" content="#2F6B4F">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="preconnect" href="https://idowfsvjkbatqshkpimg.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -21,6 +26,7 @@
 
   <title>PG Manager</title>
   <link rel="manifest" href="manifest.json">
+  <script src="app_guard.js"></script>
   <style>
     html, body { margin: 0; height: 100%; background: #F4F7F5; }
     #splash { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -36,6 +42,7 @@
   </style>
 </head>
 <body>
+  <noscript><p style="font-family:system-ui,sans-serif;padding:24px">PG Manager needs JavaScript. Please turn it on in your browser settings.</p></noscript>
   <div id="splash" aria-label="Loading">
     <img src="icons/Icon-192.png" alt="">
     <b>PG Manager</b>

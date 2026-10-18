@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="How PG Manager collects, uses, protects and deletes personal data, under India's DPDP Act 2023.">
 <title>Privacy Policy · PG Manager</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <script src="legal.js"></script>
@@ -12,10 +14,10 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   header { background: linear-gradient(160deg, #2F6B4F, #1F4E3A); color: #fff; padding: 28px 16px 22px; }
-  header .in, main { max-width: 760px; margin: 0 auto; }
+  header .in, main, footer { max-width: 760px; margin: 0 auto; }
   header h1 { margin: 0 0 4px; font-size: 26px; }
   header p { margin: 0; color: #fff; opacity: .9; font-size: 14px; }
-  main { padding: 8px 16px 48px; }
+  main { padding: 8px 16px 24px; }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin: 14px 0; }
   .card.key { border-color: #BFD8C9; background: #F1F8F4; }
   h2 { font-size: 18px; margin: 4px 0 8px; color: var(--green); }
@@ -27,36 +29,42 @@
   th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; }
   a { color: var(--green); }
+  a:focus-visible { outline: 3px solid #F2C14E; outline-offset: 2px; border-radius: 3px; }
   .muted { color: var(--muted); font-size: 14px; }
   nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; margin-top: 10px; }
   nav a { color: #fff; }
+  .skip { position: absolute; left: -999px; top: 8px; background: #fff; color: var(--green); padding: 8px 12px; border-radius: 8px; }
+  .skip:focus { left: 8px; }
+  footer { padding: 0 16px 40px; }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header><div class="in">
   <h1>Privacy Policy</h1>
   <p>PG Manager · Version <span data-legal="VERSION"></span> · Last updated <span data-legal="UPDATED"></span></p>
-  <nav><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="./">Open the app</a></nav>
+  <nav aria-label="Policies"><a href="privacy.html" aria-current="page">Privacy</a><a href="terms.html">Terms</a><a href="refund.html">Refunds</a><a href="cookies.html">Cookies</a><a href="./">Open the app</a></nav>
 </div></header>
-<main>
+<main id="main">
 
 <div class="card key">
   <h2>In short</h2>
   <ul>
     <li>PG Manager helps paying-guest (PG) owners manage rooms, guests, rent, meals and repairs.</li>
     <li>We collect only what a PG needs to run: who stays, where, rent paid, meal choices and repairs.</li>
-    <li>We <b>never sell</b> your data, never show ads and never use it for marketing.</li>
+    <li>We <b>never sell</b> your data, never show ads and never use it for marketing. No tracking cookies (<a href="cookies.html">Cookie Policy</a>).</li>
     <li>ID photos and selfies are <b>deleted automatically</b> a few days after a guest leaves.</li>
-    <li>Data is stored in <b>India (Mumbai)</b>, protected by access rules, and backed up.</li>
-    <li>You can ask to see, correct or delete your data: email <a data-legal="CONTACT_EMAIL"></a>.</li>
+    <li>Data is stored in <b>India (Mumbai)</b> and protected by access rules.</li>
+    <li>You can ask to see, correct or delete your data in the app (Settings → Privacy &amp; terms) or by email: <a data-legal="CONTACT_EMAIL"></a>.</li>
   </ul>
 </div>
 
 <div class="card">
   <h2>1. Who is responsible for your data</h2>
-  <p>PG Manager is run by <span data-legal="CONTACT_NAME"></span> (India). Under India's Digital Personal Data Protection Act, 2023:</p>
+  <p><span data-legal="BUSINESS"></span> is run by <span data-legal="CONTACT_NAME"></span>, <span data-legal="CITY"></span>. Under India's Digital Personal Data Protection Act, 2023:</p>
   <ul>
     <li><b>If you are a guest:</b> your PG (the owner) decides why and how your data is used. The PG is the <i>Data Fiduciary</i>. PG Manager is the software the PG uses and handles your data only on the PG's behalf (<i>Data Processor</i>).</li>
+    <li><b>If you enquire on a PG's public page:</b> the PG you write to is the Data Fiduciary; PG Manager delivers your message to them.</li>
     <li><b>If you are a PG owner or staff member:</b> PG Manager is the Data Fiduciary for your own account data (your name, email, phone and plan).</li>
   </ul>
 </div>
@@ -67,19 +75,26 @@
   <ul>
     <li>Name, phone and WhatsApp number, email, gender, food and tea/coffee preference.</li>
     <li>Home address, emergency contact and parent/guardian details.</li>
-    <li>ID type, ID photo and a selfie (only when you add them, and only with your consent).</li>
+    <li>ID type, ID photo and a selfie (only when you add them, and only with your consent). For Aadhaar, only the masked copy; we never ask you to type an Aadhaar number.</li>
     <li>Room and bed, joining, notice and leaving dates.</li>
     <li>Rent, token advance, refundable deposit, payments, receipts and UPI reference numbers.</li>
     <li>Meal choices and meal-counter check-ins, notices you read, and repair requests with photos.</li>
   </ul>
+  <h3>People who enquire on a PG's public page</h3>
+  <ul>
+    <li>Name, phone number, the move-in date and message you type, and your consent to be contacted. Nothing else.</li>
+    <li>To stop spam, a scrambled code made from your internet address (not the address itself) is kept for 2 days.</li>
+    <li>Page visits are counted per day and per source (for example "from WhatsApp") without cookies and without your internet address.</li>
+  </ul>
   <h3>PG owners and staff</h3>
   <ul>
     <li>Name, email, phone, PG name and address, UPI ID, logo, plan and subscription payments.</li>
+    <li>Business figures you choose to record (expenses and income for "Profit per bed"), your PG's Google Business link, and the review requests you send.</li>
     <li>Records of what you agreed to (version and date) and important actions such as acknowledged notifications.</li>
   </ul>
   <h3>Technical</h3>
   <ul>
-    <li>Your login is kept in your browser so you stay signed in. We use no advertising or tracking cookies.</li>
+    <li>Only essential browser storage, such as your login, so you stay signed in. No advertising or tracking cookies. See the <a href="cookies.html">Cookie Policy</a>.</li>
     <li>Error reports (what failed, never your guests' details) to keep the app working.</li>
     <li>Wrong guest-login attempts with a device label, to stop people guessing logins.</li>
   </ul>
@@ -92,59 +107,74 @@
     <li>To plan meals and reduce food waste, and to handle repair requests.</li>
     <li>For guest safety and records the law may require (for example, sharing details with the police only when the law asks for it).</li>
     <li>To send service messages such as rent reminders, login codes and receipts (by email or WhatsApp).</li>
+    <li>To answer owners' questions in "Ask PG Manager" (see section 5).</li>
     <li>To keep the service secure, fix problems and prevent misuse.</li>
   </ul>
-  <p>Guest data is collected <b>with the guest's consent</b>, given on the joining form or to the PG at check-in. Owner account data is used to provide the service the owner signed up for.</p>
+  <p>Guest data is collected <b>with the guest's consent</b>, given on the joining form or to the PG at check-in. Owner account data is used to provide the service the owner signed up for. We collect nothing "just in case".</p>
 </div>
 
 <div class="card">
   <h2>4. Who can see it</h2>
   <table>
     <tr><th>Who</th><th>What they can see</th></tr>
-    <tr><td>PG owner and manager</td><td>The guests, rooms, rent and records of <b>their own PG only</b>.</td></tr>
+    <tr><td>PG owner and manager</td><td>The guests, rooms, rent, enquiries and records of <b>their own PG only</b>.</td></tr>
     <tr><td>Cook</td><td>Meal counts and meal replies only. No ID photos, phone numbers or rent.</td></tr>
     <tr><td>Guest</td><td>Their own stay, rent, meals and repair requests.</td></tr>
-    <tr><td>PG Manager team</td><td>Only when needed for support, security or a legal request.</td></tr>
+    <tr><td>PG Manager team</td><td>Owner accounts and plans. Not guests' personal details, except when needed for a legal request.</td></tr>
     <tr><td>Other PGs</td><td>Nothing. Each PG's data is kept separate by database access rules.</td></tr>
   </table>
   <h3>Service providers we use</h3>
   <ul>
     <li><b>Supabase</b> (on Amazon Web Services, Mumbai region): database, logins and file storage.</li>
     <li><b>GitHub Pages</b>: delivers the app's website files. These files contain no personal data.</li>
-    <li><b>Google Fonts</b>: letter shapes for the app screens (no personal data is sent).</li>
+    <li><b>Google</b>: letter shapes and the app's drawing engine (no personal data is sent), and Gmail, which delivers login-code emails.</li>
     <li><b>WhatsApp (Meta)</b>: only if your PG turns on WhatsApp messages; the message text and phone number go through WhatsApp.</li>
+    <li><b>Anthropic (Claude AI)</b>: only for owners whose plan includes the AI assistant. The owner's question and the PG figures needed to answer it are sent; phone numbers and ID numbers are removed first. It may be processed outside India. Anthropic does not use this data to train its AI.</li>
+    <li><b>Razorpay</b>: only if a PG owner turns on online rent. The guest pays on Razorpay's own page into the owner's Razorpay account; we receive only whether the payment succeeded. We never see card numbers or UPI PINs.</li>
   </ul>
-  <p>We do not sell or rent personal data to anyone.</p>
+  <p>Google review and Maps buttons simply open Google's own pages; we send no guest data to Google. We do not sell or rent personal data to anyone.</p>
 </div>
 
 <div class="card">
-  <h2>5. How long we keep it</h2>
+  <h2>5. AI answers</h2>
+  <ul>
+    <li>"Ask PG Manager" gives every owner a free helper that searches our help pages and the owner's own figures. Nothing leaves our system.</li>
+    <li>Owners on the Elite plan can also get AI answers (Anthropic, see above). We keep only a count of questions for the monthly limit, not the questions themselves.</li>
+    <li>AI answers can be wrong. They are suggestions for the owner; no decision about a guest is made automatically.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>6. How long we keep it</h2>
   <table>
     <tr><th>Data</th><th>Kept for</th></tr>
     <tr><td>Guest ID photo and selfie</td><td>Deleted automatically a few days after check-out (the PG's setting, 7 days by default, at most 90).</td></tr>
     <tr><td>Guest phone, email, address, emergency contact</td><td>Removed 1 year after the guest leaves.</td></tr>
     <tr><td>Name, stay dates, rent and payment records</td><td>Kept as the PG's business and accounting records, as long as the law requires.</td></tr>
     <tr><td>Rejected or unfinished joining forms</td><td>Photos deleted after 7 days; the form after 30 days.</td></tr>
+    <tr><td>Enquiries from a PG's public page</td><td>Deleted 180 days after they arrive (sooner if the PG deletes them).</td></tr>
+    <tr><td>Spam-check code from an enquiry</td><td>2 days.</td></tr>
     <tr><td>Error reports</td><td>30 days.</td></tr>
     <tr><td>Wrong-login records</td><td>7 days.</td></tr>
+    <tr><td>Your privacy requests and our replies</td><td>3 years, as proof that we answered.</td></tr>
     <tr><td>Owner account</td><td>While the account is active. After you close it, deleted within 30 days unless the law requires us to keep something.</td></tr>
   </table>
 </div>
 
 <div class="card">
-  <h2>6. How we protect it</h2>
+  <h2>7. How we protect it</h2>
   <ul>
     <li>All traffic is encrypted (HTTPS) and data is encrypted at rest by our database provider.</li>
     <li>Database access rules let each person see only what their role allows.</li>
     <li>ID photos and guest photos are stored privately, never as public links.</li>
-    <li>Login by one-time email code; limits on wrong attempts; secret keys for automatic jobs.</li>
-    <li>Regular backups, tested by restoring them, and monitoring for errors and misuse.</li>
+    <li>Login by one-time email code; limits on wrong attempts and on form submissions; secret keys are kept on the server, never in the app.</li>
+    <li>Regular backups of the database, checked by restoring them, and monitoring for errors and misuse.</li>
   </ul>
   <p>If a data breach affects you, we will tell you and the Data Protection Board of India as the law requires.</p>
 </div>
 
 <div class="card" id="rights">
-  <h2>7. Your rights</h2>
+  <h2>8. Your rights</h2>
   <p>You can ask to:</p>
   <ul>
     <li><b>See</b> the data held about you and who it was shared with.</li>
@@ -153,28 +183,29 @@
     <li><b>Withdraw consent</b>, as easily as you gave it. After withdrawal we stop using the data, but services that need it (for example, staying at the PG) may no longer be possible.</li>
     <li><b>Nominate</b> someone to use these rights for you if you die or cannot act.</li>
   </ul>
-  <p><b>Guests:</b> please ask your PG owner first; they can correct most details in the app. You can also email us and we will pass it to your PG and help.</p>
-  <p><b>Owners and staff:</b> email us from your login email.</p>
-  <p>We reply within <b>30 days</b>.</p>
+  <p><b>Owners and staff:</b> in the app, Settings → Privacy &amp; terms → <i>Ask about my data</i>. You get a reference number and can see our reply there. Or email us from your login email.</p>
+  <p><b>Guests and people who enquired:</b> please ask the PG first; they can correct most details in the app. You can also email us and we will pass it to the PG and help.</p>
+  <p>We reply within <b>30 days</b>. If we cannot do what you ask (for example, rent records the law requires us to keep), we tell you why.</p>
 </div>
 
 <div class="card">
-  <h2>8. Children</h2>
-  <p>PG Manager is meant for adult guests (18 and over). If a guest is under 18, the PG owner must get consent from the guest's parent or guardian before adding them.</p>
+  <h2>9. Children</h2>
+  <p>Owner and staff accounts are only for adults (18 and over). PG Manager is meant for adult guests. If a guest is under 18, the joining form asks for a parent's or guardian's name, phone number and consent, and the PG owner must confirm with the parent or guardian before approving the guest. We do not use children's data for tracking, ads or profiling.</p>
 </div>
 
 <div class="card">
-  <h2>9. Complaints (Grievance Officer)</h2>
-  <p><b><span data-legal="CONTACT_NAME"></span></b>, PG Manager<br>Email: <a data-legal="CONTACT_EMAIL"></a></p>
+  <h2>10. Complaints (Grievance Officer)</h2>
+  <p><b><span data-legal="CONTACT_NAME"></span></b>, PG Manager, <span data-legal="CITY"></span><br>Email: <a data-legal="CONTACT_EMAIL"></a></p>
   <p>Please include your name, phone or login email, and your PG's name. If you are not satisfied with our reply, you may complain to the Data Protection Board of India.</p>
 </div>
 
 <div class="card">
-  <h2>10. Changes to this policy</h2>
+  <h2>11. Changes to this policy</h2>
   <p>If we change this policy, we will update the version and date above and ask you to read and accept it again in the app.</p>
 </div>
 
 <p class="muted">This policy follows India's Digital Personal Data Protection Act, 2023 and the DPDP Rules, 2025.</p>
 </main>
+<footer><p class="muted"><span data-legal="BUSINESS"></span> · <span data-legal="CONTACT_NAME"></span> · <span data-legal="CITY"></span> · <a data-legal="CONTACT_EMAIL"></a></p></footer>
 </body>
 </html>

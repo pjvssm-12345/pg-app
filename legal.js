@@ -1,10 +1,13 @@
 // PG Manager legal pages: the ONE place to change the contact details and version.
-// When your website email is ready, change CONTACT_EMAIL here (and kContactEmail in lib/config.dart).
+// When your website email is ready, change CONTACT_EMAIL here (and contactEmail in lib/config.dart).
+// VERSION must be the same as legalVersion in lib/config.dart (changing it asks everyone to accept again).
 var LEGAL = {
+  BUSINESS: 'PG Manager',
   CONTACT_NAME: 'Janakiram',
   CONTACT_EMAIL: 'pjvssm@gmail.com',
-  VERSION: '2026-10-03',
-  UPDATED: '3 October 2026'
+  CITY: 'Bengaluru, Karnataka, India',
+  VERSION: '2026-10-18',
+  UPDATED: '18 October 2026'
 };
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[data-legal]').forEach(function (el) {

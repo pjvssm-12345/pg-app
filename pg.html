@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2F6B4F">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src 'self' data: https://idowfsvjkbatqshkpimg.supabase.co; connect-src https://idowfsvjkbatqshkpimg.supabase.co; base-uri 'none'; form-action 'none'">
+<title>PG rooms · PG Manager</title>
+<meta name="description" content="PG (paying guest) rooms: photos, rent, amenities and enquiry.">
+<link rel="preconnect" href="https://idowfsvjkbatqshkpimg.supabase.co" crossorigin>
+<style>
+  :root {
+    --leaf: #2F6B4F; --leaf-dark: #234F3B; --turmeric: #8F5E00; --turmeric-bg: #FBF1DC;
+    --bg: #F4F7F5; --card: #FFFFFF; --ink: #1D2622; --muted: #56645D; --line: #DCE3DF; --field: #848F89;
+    --red: #B3261E; --red-bg: #FCE8E4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; -webkit-text-size-adjust: 100%; }
+  a { color: var(--leaf); }
+  :focus-visible { outline: 3px solid #2F6B4F; outline-offset: 2px; }
+  .skip { position: absolute; left: -999px; top: 8px; background: #fff; color: var(--leaf); padding: 8px 12px; border-radius: 8px; z-index: 9; }
+  .skip:focus { left: 8px; }
+  header.top { background: linear-gradient(160deg, #2F6B4F, #1F4E3A); color: #fff; padding: 18px 16px 20px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .brand { display: flex; gap: 12px; align-items: center; }
+  .brand img { width: 52px; height: 52px; border-radius: 12px; background: #fff; object-fit: contain; }
+  .brand h1 { margin: 0; font-size: 24px; line-height: 1.2; }
+  .brand p { margin: 2px 0 0; font-size: 14px; opacity: .92; }
+  .badge { display: inline-block; font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 99px; background: rgba(255,255,255,.18); margin-top: 8px; }
+  main { padding: 0 16px 32px; }
+  .gallery { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 14px -16px 0; padding: 0 16px 6px; }
+  .gallery img { flex: 0 0 auto; width: min(86vw, 520px); aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; scroll-snap-align: start; background: #E3E9E5; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-top: 14px; }
+  h2 { font-size: 18px; margin: 0 0 8px; color: var(--leaf-dark); }
+  .headline { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+  .rent { font-size: 26px; font-weight: 800; color: var(--leaf-dark); }
+  .rent small { font-size: 15px; font-weight: 500; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; }
+  td, th { text-align: left; padding: 8px 4px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 14px; }
+  td.r { text-align: right; font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; list-style: none; }
+  .chips li { background: #E3F1EA; color: var(--leaf-dark); border-radius: 99px; padding: 4px 12px; font-size: 14px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  .pre { white-space: pre-line; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 12px;
+    border: 0; background: var(--leaf); color: #fff; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .btn.alt { background: #fff; color: var(--leaf-dark); border: 1.5px solid var(--leaf); }
+  .btn.wide { width: 100%; }
+  .btn[disabled] { opacity: .6; cursor: default; }
+  label.f { display: block; font-weight: 600; margin: 12px 0 4px; }
+  input.t, select.t, textarea.t { width: 100%; font: inherit; font-size: 16px; min-height: 48px; padding: 10px 12px; border: 1px solid var(--field);
+    border-radius: 12px; background: #fff; color: var(--ink); }
+  textarea.t { min-height: 84px; }
+  [aria-invalid="true"] { border-color: var(--red) !important; }
+  .err { color: var(--red); font-size: 14px; margin-top: 4px; min-height: 0; }
+  label.check { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; }
+  label.check input { width: 22px; height: 22px; margin: 2px 0 0; flex: 0 0 auto; accent-color: var(--leaf); }
+  .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .msg { padding: 12px; border-radius: 12px; margin-top: 12px; }
+  .msg.ok { background: #E3F1EA; color: var(--leaf-dark); }
+  .msg.bad { background: var(--red-bg); color: var(--red); }
+  details summary { cursor: pointer; font-weight: 600; min-height: 32px; }
+  footer { max-width: 760px; margin: 0 auto; padding: 8px 16px 40px; color: var(--muted); font-size: 13px; }
+  footer a { color: var(--muted); }
+  .center { text-align: center; }
+  .poster { text-align: center; padding: 24px 12px; background: #fff; min-height: 100vh; }
+  .poster h1 { font-size: 30px; margin: 6px 0; }
+  .poster #qr svg { width: min(78vw, 380px); height: auto; }
+  .skel { height: 220px; border-radius: 14px; background: linear-gradient(90deg, #E3E9E5, #EDF1EF, #E3E9E5); margin-top: 14px; }
+  @media print { .noprint { display: none !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div id="app"><header class="top"><div class="wrap"><div class="brand"><div><h1>Loading…</h1></div></div></div></header>
+  <main id="main" class="wrap"><div class="skel" aria-hidden="true"></div></main></div>
+<footer class="noprint" id="foot">
+  Listing by the PG owner. Please confirm rent and rooms when you visit.<br>
+  Made with PG Manager · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy</a> ·
+  <a href="https://pjvssm-12345.github.io/pg-app/terms.html" target="_blank" rel="noopener">Terms</a> ·
+  <a href="https://pjvssm-12345.github.io/pg-app/cookies.html" target="_blank" rel="noopener">Cookies (none used here)</a>
+</footer>
+<script>
+// Do not run inside another website's frame (stops click-tricking).
+if (window.top !== window.self) { document.documentElement.style.visibility = 'hidden'; try { window.top.location.replace(location.href); } catch (e) {} }
+
+// PG website (update 076): pg.html?s=<web address>&src=<google|whatsapp|qr|instagram|facebook|ad>&poster=1
+const SUPABASE_URL = 'https://idowfsvjkbatqshkpimg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
+const qs = new URLSearchParams(location.search);
+const slug = (qs.get('s') || '').trim().toLowerCase();
+const src = (qs.get('src') || '').trim().toLowerCase();
+const app = document.getElementById('app');
+let page = null;
+let formShownAt = 0;
+
+function logErr(m, d) {
+  try {
+    fetch(`${SUPABASE_URL}/rest/v1/rpc/log_error`, { method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_source: 'pgsite', p_message: String(m || '?').slice(0, 500),
+        p_detail: String(d || '').slice(0, 2000), p_page: location.pathname }) }).catch(() => {});
+  } catch (e) {}
+}
+window.addEventListener('error', e => logErr(e.message, (e.filename || '') + ':' + (e.lineno || '')));
+window.addEventListener('unhandledrejection', e => logErr(e.reason && e.reason.message || e.reason, e.reason && e.reason.stack));
+
+async function rpc(fn, body) {
+  let r;
+  try {
+    r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+      method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  } catch (e) { throw new Error('Could not reach the server. Check your internet and try again.'); }
+  const text = await r.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!r.ok) throw new Error((data && data.message) || 'Something went wrong. Please try again.');
+  return data;
+}
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function safeUrl(u) { return typeof u === 'string' && /^https:\/\/[^\s"'<>]+$/.test(u) ? u : null; }
+function rupees(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+const photoUrl = p => `${SUPABASE_URL}/storage/v1/object/public/pg-public/${encodeURI(p)}`;
+const logoUrl = p => `${SUPABASE_URL}/storage/v1/object/public/pg-logos/${encodeURI(p)}`;
+const GENDER = { boys: 'For men', girls: 'For women', coliving: 'Co-living (men & women)', any: '' };
+const pageUrl = extra => location.origin + location.pathname + '?s=' + encodeURIComponent(slug) + (extra || '');
+
+function setMeta(p) {
+  const place = [p.area, p.city].filter(Boolean).join(', ');
+  document.title = `${p.name} · PG in ${place}${p.rent_from ? ' · from ' + rupees(p.rent_from) + '/month' : ''}`;
+  const desc = `${p.headline || p.name}. ${GENDER[p.gender] ? GENDER[p.gender] + '. ' : ''}${p.rent_from ? 'Rent from ' + rupees(p.rent_from) + ' a month. ' : ''}` +
+    `${(p.amenities || []).slice(0, 5).join(', ')}. Send an enquiry online.`;
+  const set = (sel, attr, val, make) => { let el = document.head.querySelector(sel); if (!el) { el = document.createElement(make[0]); make[1](el); document.head.appendChild(el); } el.setAttribute(attr, val); };
+  set('meta[name="description"]', 'content', desc.slice(0, 300), ['meta', el => el.setAttribute('name', 'description')]);
+  set('link[rel="canonical"]', 'href', pageUrl(), ['link', el => el.setAttribute('rel', 'canonical')]);
+  set('meta[property="og:title"]', 'content', document.title, ['meta', el => el.setAttribute('property', 'og:title')]);
+  set('meta[property="og:description"]', 'content', desc.slice(0, 300), ['meta', el => el.setAttribute('property', 'og:description')]);
+  if (p.photos && p.photos[0]) set('meta[property="og:image"]', 'content', photoUrl(p.photos[0]), ['meta', el => el.setAttribute('property', 'og:image')]);
+  // Structured data for Google (no star ratings: Google does not allow businesses to rate themselves)
+  const ld = { '@context': 'https://schema.org', '@type': 'Hostel', name: p.name, description: (p.about || p.headline || '').slice(0, 500),
+    url: pageUrl(), address: { '@type': 'PostalAddress', addressLocality: p.area || undefined, addressRegion: p.city || undefined, addressCountry: 'IN' },
+    image: (p.photos || []).map(photoUrl), amenityFeature: (p.amenities || []).map(a => ({ '@type': 'LocationFeatureSpecification', name: a, value: true })) };
+  if (p.rent_from) ld.priceRange = `From ${rupees(p.rent_from)} per month`;
+  if (p.phone) ld.telephone = '+91' + p.phone;
+  const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
+}
+
+function notFound(msg) {
+  document.title = 'Page not found · PG Manager';
+  app.innerHTML = `<header class="top"><div class="wrap"><div class="brand"><div><h1>Page not found</h1>
+    <p>${esc(msg || 'This PG page is not available right now.')}</p></div></div></div></header>
+    <main id="main" class="wrap"><div class="card"><p>The link may be old, or the PG has hidden its page for now. Please ask the PG for the latest link.</p></div></main>`;
+}
+
+function render(p) {
+  const place = [p.area, p.city].filter(Boolean).join(', ');
+  const phone = p.phone ? String(p.phone) : null;
+  const wa = phone ? `https://wa.me/91${phone}?text=${encodeURIComponent('Hi, I saw ' + p.name + ' online. Is a bed available?')}` : null;
+  const maps = safeUrl(p.maps_url) || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([p.name, p.landmark, p.area, p.city].filter(Boolean).join(', '))}`;
+  const review = safeUrl(p.review_url);
+  const ig = safeUrl(p.instagram_url), fb = safeUrl(p.facebook_url);
+  const sharing = (p.sharing || []).filter(x => x && x.type);
+  app.innerHTML = `
+  <header class="top"><div class="wrap">
+    <div class="brand">${p.logo_path ? `<img src="${esc(logoUrl(p.logo_path))}" alt="${esc(p.name)} logo">` : ''}
+      <div><h1>${esc(p.name)}</h1><p>${esc(place)}${p.landmark ? ' · ' + esc(p.landmark) : ''}</p></div></div>
+    ${GENDER[p.gender] ? `<span class="badge">${esc(GENDER[p.gender])}</span>` : ''}
+  </div></header>
+  <main id="main" class="wrap">
+    ${(p.photos || []).length ? `<div class="gallery" role="region" aria-label="Photos" tabindex="0">${p.photos.map((ph, i) =>
+      `<img src="${esc(photoUrl(ph))}" alt="Photo ${i + 1} of ${p.photos.length}: ${esc(p.name)}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async">`).join('')}</div>` : ''}
+    <section class="card" aria-labelledby="h-rent">
+      ${p.headline ? `<p class="headline" id="h-rent">${esc(p.headline)}</p>` : `<h2 id="h-rent">Rent</h2>`}
+      ${p.rent_from ? `<div class="rent">From ${rupees(p.rent_from)} <small>per month</small></div>` : ''}
+      ${sharing.length ? `<table><thead><tr><th scope="col">Room</th><th scope="col" class="r">Rent / month</th></tr></thead><tbody>
+        ${sharing.map(x => `<tr><td>${esc(x.type)}</td><td class="r">${x.rent ? rupees(x.rent) : 'Ask'}</td></tr>`).join('')}</tbody></table>` : ''}
+      <div class="btns noprint">
+        <a class="btn" href="#enquire">Send an enquiry</a>
+        ${wa ? `<a class="btn alt" href="${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a><a class="btn alt" href="tel:+91${esc(phone)}">Call</a>` : ''}
+      </div>
+    </section>
+    ${(p.amenities || []).length ? `<section class="card" aria-labelledby="h-am"><h2 id="h-am">Amenities</h2>
+      <ul class="chips">${p.amenities.map(a => `<li>${esc(a)}</li>`).join('')}</ul></section>` : ''}
+    ${p.about ? `<section class="card" aria-labelledby="h-ab"><h2 id="h-ab">About this PG</h2><p class="pre">${esc(p.about)}</p></section>` : ''}
+    ${p.food ? `<section class="card" aria-labelledby="h-fd"><h2 id="h-fd">Food</h2><p class="pre">${esc(p.food)}</p></section>` : ''}
+    ${p.rules ? `<section class="card"><details><summary>House rules</summary><p class="pre">${esc(p.rules)}</p></details></section>` : ''}
+    <section class="card" aria-labelledby="h-loc"><h2 id="h-loc">Location</h2>
+      <p>${esc(place)}${p.landmark ? '<br>' + esc(p.landmark) : ''}</p>
+      <p class="muted small">The exact address is shared when you enquire or visit.</p>
+      <div class="btns noprint"><a class="btn alt" href="${esc(maps)}" target="_blank" rel="noopener">Open in Google Maps</a></div>
+    </section>
+    <section class="card" aria-labelledby="h-rv"><h2 id="h-rv">Reviews</h2>
+      <p class="muted">Read what guests say, in their own words, on Google${ig || fb ? ' and social media' : ''}.</p>
+      <div class="btns noprint">
+        ${safeUrl(p.maps_url) ? `<a class="btn alt" href="${esc(p.maps_url)}" target="_blank" rel="noopener">Read reviews on Google</a>` : ''}
+        ${review ? `<a class="btn alt" href="${esc(review)}" target="_blank" rel="noopener">Stayed here? Write a review</a>` : ''}
+        ${ig ? `<a class="btn alt" href="${esc(ig)}" target="_blank" rel="noopener">Instagram</a>` : ''}
+        ${fb ? `<a class="btn alt" href="${esc(fb)}" target="_blank" rel="noopener">Facebook</a>` : ''}
+        ${!safeUrl(p.maps_url) && !review && !ig && !fb ? `<a class="btn alt" href="${esc(maps)}" target="_blank" rel="noopener">Search on Google</a>` : ''}
+      </div>
+    </section>
+    <section class="card noprint" id="enquire" aria-labelledby="h-enq"><h2 id="h-enq">Send an enquiry</h2>
+      <p class="muted small">Goes only to ${esc(p.name)}. They will call or WhatsApp you.</p>
+      <form id="enq" novalidate>
+        <label class="f" for="e_name">Your name</label>
+        <input class="t" id="e_name" name="name" autocomplete="name" maxlength="60" required aria-describedby="err_name">
+        <div class="err" id="err_name" aria-live="polite"></div>
+        <label class="f" for="e_phone">Mobile number</label>
+        <input class="t" id="e_phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="17" required aria-describedby="err_phone" placeholder="10-digit number">
+        <div class="err" id="err_phone" aria-live="polite"></div>
+        ${sharing.length ? `<label class="f" for="e_sharing">Room you want</label>
+          <select class="t" id="e_sharing"><option value="">Not sure yet</option>${sharing.map(x => `<option>${esc(x.type)}</option>`).join('')}</select>` : ''}
+        <label class="f" for="e_date">Move-in date (optional)</label>
+        <input class="t" id="e_date" type="date">
+        <label class="f" for="e_msg">Message (optional)</label>
+        <textarea class="t" id="e_msg" maxlength="500" placeholder="e.g. Can I visit on Sunday?"></textarea>
+        <div class="trap" aria-hidden="true"><label for="e_web">Leave this empty</label><input id="e_web" tabindex="-1" autocomplete="off"></div>
+        <label class="check"><input type="checkbox" id="e_consent"><span>I agree that ${esc(p.name)} may call or WhatsApp me about this enquiry.
+          <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a></span></label>
+        <label class="check"><input type="checkbox" id="e_adult"><span>I am 18 or older. (Under 18? Please ask a parent or guardian to enquire for you.)</span></label>
+        <div class="err" id="err_ticks" aria-live="polite"></div>
+        <div id="enqMsg" role="status" aria-live="polite"></div>
+        <button class="btn wide" id="e_send" type="submit" style="margin-top:14px">Send enquiry</button>
+        <p class="muted small">Your details are used only to reply to you and are deleted after 180 days.</p>
+      </form>
+    </section>
+  </main>`;
+  const d = document.getElementById('e_date');
+  if (d) { const t = new Date(); d.min = t.toISOString().slice(0, 10); const m = new Date(t.getTime() + 365 * 864e5); d.max = m.toISOString().slice(0, 10); }
+  formShownAt = Date.now();
+  document.getElementById('enq').addEventListener('submit', send);
+}
+
+function fieldErr(id, msg) {
+  const el = document.getElementById(id), box = document.getElementById('err_' + id.replace('e_', ''));
+  if (el) el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  if (box) box.textContent = msg || '';
+  return !msg;
+}
+
+async function send(ev) {
+  ev.preventDefault();
+  const name = document.getElementById('e_name').value.trim().replace(/\s+/g, ' ');
+  const phone = document.getElementById('e_phone').value.replace(/\D/g, '').slice(-10);
+  const consent = document.getElementById('e_consent').checked, adult = document.getElementById('e_adult').checked;
+  let ok = fieldErr('e_name', name.length < 2 ? 'Please type your name.' : /[0-9<>{}()@#$%^&*=+/\\|~`"_:;!?]/.test(name) ? 'Letters only, please.' : '');
+  ok = fieldErr('e_phone', /^[6-9]\d{9}$/.test(phone) ? '' : 'Please type a 10-digit mobile number.') && ok;
+  const ticks = document.getElementById('err_ticks');
+  ticks.textContent = !consent ? 'Please tick that the PG may call you.' : !adult ? 'Please tick that you are 18 or older.' : '';
+  if (!ok || !consent || !adult) { (document.querySelector('[aria-invalid="true"]') || document.getElementById(!consent ? 'e_consent' : 'e_adult')).focus(); return; }
+  const btn = document.getElementById('e_send'), msg = document.getElementById('enqMsg');
+  btn.disabled = true; btn.textContent = 'Sending…'; msg.innerHTML = '';
+  try {
+    const sh = document.getElementById('e_sharing');
+    const r = await rpc('public_pg_enquiry', { p_slug: slug, p_name: name, p_phone: phone, p_sharing: sh ? sh.value : null,
+      p_move_in: document.getElementById('e_date').value || null, p_message: document.getElementById('e_msg').value.trim() || null,
+      p_consent: consent, p_adult: adult, p_trap: document.getElementById('e_web').value, p_ms: Date.now() - formShownAt, p_src: src || null });
+    document.getElementById('enq').innerHTML = `<div class="msg ok" role="status"><b>Thank you, ${esc(name.split(' ')[0])}!</b><br>
+      ${r && r.repeat ? 'We already have your enquiry. ' : 'Your enquiry has been sent. '}${esc(page.name)} will call or WhatsApp you soon.</div>`;
+  } catch (e) {
+    msg.innerHTML = `<div class="msg bad">${esc(e.message)}</div>`;
+    btn.disabled = false; btn.textContent = 'Send enquiry';
+  }
+}
+
+function showPoster(p) {
+  const url = pageUrl('&src=qr');
+  document.getElementById('foot').hidden = true;
+  app.innerHTML = `<div class="poster"><p class="muted">${esc(GENDER[p.gender] || 'PG rooms')}</p><h1>${esc(p.name)}</h1>
+    <p style="font-size:20px;margin:4px 0 14px">${p.rent_from ? 'Rooms from <b>' + rupees(p.rent_from) + '</b> a month' : 'Rooms available'}</p>
+    <div id="qr" aria-label="QR code to open this PG's page"></div>
+    <p style="font-size:20px"><b>Scan to see photos, rent and send an enquiry</b></p>
+    <p class="muted">${esc([p.area, p.city].filter(Boolean).join(', '))}</p>
+    <p class="noprint"><button class="btn" onclick="print()">Print this poster</button></p></div>`;
+  const sc = document.createElement('script');
+  sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+  sc.integrity = 'sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw=='; sc.crossOrigin = 'anonymous';
+  sc.onload = () => { const q = qrcode(0, 'M'); q.addData(url); q.make(); document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }); };
+  sc.onerror = () => { document.getElementById('qr').innerHTML = `<p class="msg bad">QR could not load. Link: ${esc(url)}</p>`; };
+  document.head.appendChild(sc);
+}
+
+(async function start() {
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return notFound('The link is not complete.');
+  try {
+    page = await rpc('public_pg_page', { p_slug: slug, p_src: qs.get('poster') === '1' ? 'preview' : (src || null) });
+  } catch (e) {
+    return notFound(/not found/i.test(e.message) ? '' : e.message);
+  }
+  setMeta(page);
+  if (qs.get('poster') === '1') return showPoster(page);
+  render(page);
+})();
+</script>
+</body>
+</html>

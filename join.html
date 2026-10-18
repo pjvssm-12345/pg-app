@@ -45,7 +45,7 @@
   .sw input:checked + span { background: var(--leaf); }
   .sw input:checked + span::after { transform: translateX(24px); }
   .sw input:disabled + span { opacity: .45; }
-  .sw input:focus-visible + span { outline: 3px solid #8FC1A8; outline-offset: 2px; }
+  .sw input:focus-visible + span { outline: 3px solid #2F6B4F; outline-offset: 2px; }
   button { font: inherit; border: 0; border-radius: 12px; min-height: 48px; padding: 0 16px; cursor: pointer; }
   .btn { width: 100%; background: var(--leaf); color: #fff; font-weight: 600; font-size: 16px; padding: 10px 16px; }
   .btn:disabled { opacity: .5; }
@@ -53,7 +53,7 @@
   .btn.done { background: #E3F1EA; color: var(--leaf-dark); }
   .all { margin-top: 10px; }
   label.f { display: block; font-weight: 600; margin: 14px 0 6px; }
-  select, input.t { width: 100%; font: inherit; font-size: 17px; min-height: 48px; padding: 0 12px; border: 1px solid #B8C4BE;
+  select, input.t { width: 100%; font: inherit; font-size: 17px; min-height: 48px; padding: 0 12px; border: 1px solid #848F89;
     border-radius: 12px; background: #fff; color: var(--ink); }
   input.t { letter-spacing: 6px; font-size: 22px; text-align: center; }
   .msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--red-bg); color: var(--red); font-size: 15px; }
@@ -71,7 +71,7 @@
     border: 1px solid var(--line); font-size: 14px; }
   .chips button[aria-pressed="true"] { background: var(--leaf); color: #fff; border-color: var(--leaf); font-weight: 600; }
   textarea.t2 { width: 100%; box-sizing: border-box; font: inherit; font-size: 16px; min-height: 64px; padding: 10px 12px;
-    border: 1px solid #B8C4BE; border-radius: 12px; margin-bottom: 10px; }
+    border: 1px solid #848F89; border-radius: 12px; margin-bottom: 10px; }
   .rep { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
   .photo-row { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; flex-wrap: wrap; }
   .photo-row img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
@@ -87,9 +87,9 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 <style>
-  input.f2, select.f2 { width: 100%; font: inherit; font-size: 16px; min-height: 46px; padding: 0 12px; border: 1px solid #B8C4BE;
+  input.f2, select.f2 { width: 100%; font: inherit; font-size: 16px; min-height: 46px; padding: 0 12px; border: 1px solid #848F89;
     border-radius: 12px; background: #fff; color: var(--ink); }
-  textarea.f2 { width: 100%; font: inherit; font-size: 16px; min-height: 70px; padding: 10px 12px; border: 1px solid #B8C4BE; border-radius: 12px; }
+  textarea.f2 { width: 100%; font: inherit; font-size: 16px; min-height: 70px; padding: 10px 12px; border: 1px solid #848F89; border-radius: 12px; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .am { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .am span { background: #E3F1EA; color: var(--leaf-dark); border-radius: 999px; padding: 4px 10px; font-size: 14px; }
@@ -134,9 +134,11 @@
 </head>
 <body>
 <main id="app"><div class="spinner" aria-label="Loading"></div></main>
-<p class="legal-links noprint">Your data is safe with your PG · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html#rights" target="_blank" rel="noopener">Your data rights</a></p>
+<p class="legal-links noprint">Your data is safe with your PG · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="https://pjvssm-12345.github.io/pg-app/privacy.html#rights" target="_blank" rel="noopener">Your data rights</a> · <a href="https://pjvssm-12345.github.io/pg-app/cookies.html" target="_blank" rel="noopener">Cookies</a></p>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
+// Do not run inside another website's frame (stops click-tricking).
+if (window.top !== window.self) { document.documentElement.style.visibility = 'hidden'; try { window.top.location.replace(location.href); } catch (e) {} }
 // ---- Settings (public values; the database checks every request) ----
 const SUPABASE_URL = 'https://idowfsvjkbatqshkpimg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
@@ -223,7 +225,7 @@ function sel(id, label, opts, first = 'Choose') {
 function photoBlock(kind) {
   const p = photos[kind];
   const label = kind === 'id' ? '📄 Photo of your ID' : '🤳 Take a selfie';
-  return p ? `<div class="photo-row"><img class="big" src="${p.url}" alt=""><span>Added ✓</span>
+  return p ? `<div class="photo-row"><img class="big" src="${p.url}" alt="Your photo"><span>Added ✓</span>
       <button class="link" data-retake="${kind}">Change</button></div>`
     : kind === 'id'
       ? `<div class="photo-row"><button class="btn ghost small" data-pick="id">📷 Take photo of ID</button>

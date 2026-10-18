@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="PG Manager cookie policy: only essential browser storage, no advertising or tracking cookies.">
+<title>Cookie Policy · PG Manager</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="legal.js"></script>
+<style>
+  :root { --green: #2F6B4F; --ink: #1D2B24; --muted: #5E6B64; --paper: #F4F7F5; --line: #DCE5DF; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: linear-gradient(160deg, #2F6B4F, #1F4E3A); color: #fff; padding: 28px 16px 22px; }
+  header .in, main, footer { max-width: 760px; margin: 0 auto; }
+  header h1 { margin: 0 0 4px; font-size: 26px; }
+  header p { margin: 0; color: #fff; opacity: .9; font-size: 14px; }
+  main { padding: 8px 16px 24px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin: 14px 0; }
+  .card.key { border-color: #BFD8C9; background: #F1F8F4; }
+  h2 { font-size: 18px; margin: 4px 0 8px; color: var(--green); }
+  ul { padding-left: 20px; margin: 6px 0; }
+  li { margin: 3px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 6px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  a { color: var(--green); }
+  a:focus-visible { outline: 3px solid #F2C14E; outline-offset: 2px; border-radius: 3px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  nav { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; margin-top: 10px; }
+  nav a { color: #fff; }
+  .skip { position: absolute; left: -999px; top: 8px; background: #fff; color: var(--green); padding: 8px 12px; border-radius: 8px; }
+  .skip:focus { left: 8px; }
+  footer { padding: 0 16px 40px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><div class="in">
+  <h1>Cookie Policy</h1>
+  <p>PG Manager · Version <span data-legal="VERSION"></span> · Last updated <span data-legal="UPDATED"></span></p>
+  <nav aria-label="Policies"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="refund.html">Refunds</a><a href="cookies.html" aria-current="page">Cookies</a><a href="./">Open the app</a></nav>
+</div></header>
+<main id="main">
+
+<div class="card key">
+  <h2>In short</h2>
+  <ul>
+    <li>We use <b>only essential storage</b> in your browser: what the app needs to work and to keep you logged in.</li>
+    <li><b>No advertising cookies, no tracking, no Google Analytics, no Facebook pixel.</b></li>
+    <li>Because everything we store is essential, there is nothing to switch off. We show a one-time notice so you know.</li>
+    <li>Public PG pages store <b>nothing</b> in your browser. Visits are counted on our side without cookies.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>1. What is stored in your browser</h2>
+  <table>
+    <tr><th>What</th><th>Why</th><th>How long</th></tr>
+    <tr><td>Login session (from our login provider, Supabase)</td><td>Keeps you logged in so you don't need a new code every time.</td><td>Until you log out (it renews itself while you use the app).</td></tr>
+    <tr><td>"Hide money amounts" choice</td><td>Keeps rent figures hidden or shown, as you chose.</td><td>Until you clear the browser's site data.</td></tr>
+    <tr><td>Guest meal page: your login for that link and a random device code</td><td>Recognises your phone so you don't type your digits every time, and stops strangers guessing logins.</td><td>Until you clear the browser's site data or the PG resets your phone.</td></tr>
+    <tr><td>Joining form: a reference to your unfinished form</td><td>Lets you continue the form if the page closes. Removed when you send it.</td><td>Until you send the form (the form itself expires on our side).</td></tr>
+    <tr><td>Guest pages: chosen language</td><td>Shows the page in your language.</td><td>Until you clear the browser's site data.</td></tr>
+    <tr><td>"Notice seen"</td><td>Remembers that you closed this cookie notice.</td><td>Until you clear the browser's site data.</td></tr>
+  </table>
+  <p class="muted">Technically these are "local storage" entries, not classic cookies, but we treat them the same way.</p>
+</div>
+
+<div class="card">
+  <h2>2. Other services the pages load</h2>
+  <ul>
+    <li><b>Google (fonts.gstatic.com, www.gstatic.com)</b>: letter shapes and the app's drawing engine. Like any website, Google can see your device's internet address when the file is fetched. We send no personal data and Google sets no cookies through our app.</li>
+    <li><b>Cloudflare cdnjs</b>: a small QR-code tool on guest pages, checked with a security fingerprint so it can't be changed.</li>
+    <li><b>Supabase</b>: our database and login service (India, Mumbai region).</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>3. How to remove it</h2>
+  <ul>
+    <li>Log out in the app (Settings → Log out), or use "Log out of all devices".</li>
+    <li>Or clear this website's data in your browser settings. You will need to log in again.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>4. If this changes</h2>
+  <p>If we ever add anything that is not essential (for example, marketing tools), we will ask for your permission first and you can say no.</p>
+</div>
+</main>
+<footer><p class="muted">PG Manager is run by <span data-legal="CONTACT_NAME"></span>, <span data-legal="CITY"></span>. Contact: <a data-legal="CONTACT_EMAIL"></a>. See also our <a href="privacy.html">Privacy Policy</a>.</p></footer>
+</body>
+</html>
