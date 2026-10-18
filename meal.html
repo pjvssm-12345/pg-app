@@ -90,6 +90,12 @@
   .pass { border-radius: 20px; padding: 28px 18px; text-align: center; color: #fff; margin-top: 8px; }
   .pass.ok { background: #1E7A4C; } .pass.already { background: #B35500; } .pass.bad { background: #B3261E; } .pass.none { background: #56645D; }
   .pass .big { font-size: 64px; line-height: 1; }
+  .pass.leave { background: #1565C0; } .pass.trial { background: #6A4C93; }
+  .otp { display: inline-block; background: #fff; color: #1D2622; font-size: 60px; font-weight: 800; letter-spacing: 14px;
+    padding: 6px 10px 6px 24px; border-radius: 16px; margin: 12px 0 4px; font-variant-numeric: tabular-nums; }
+  .trapf { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  label.check { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; }
+  label.check input { width: 22px; height: 22px; margin: 2px 0 0; flex: 0 0 auto; accent-color: var(--leaf); }
   .pass h1 { color: #fff; font-size: 28px; margin: 10px 0 4px; }
   .pass .who { font-size: 22px; font-weight: 700; }
   .pass .clock { font-size: 40px; font-weight: 800; letter-spacing: 1px; margin-top: 12px; font-variant-numeric: tabular-nums; }
@@ -146,6 +152,15 @@ const T = {
   en: {
     notices_title: 'Notices', rent_early: 'Pay by {d}: {a} (save {s})', fixnote: 'Note', 
     rent_title: 'Rent', rent_due: 'Due {d}', rent_pay: 'Pay {a} by UPI', rent_paid: 'I have paid', rent_wait: 'Sent ✓ Waiting for PG manager to confirm', rent_utr: 'UPI reference number (optional)', rent_send: 'Send to PG manager', rent_cash: 'Pay your PG manager (UPI not set up).', rent_token: 'Token advance', rent_for: 'Rent {p}', rent_rej: 'Manager could not find this payment. Please talk to them.', 
+    dq_choose: 'Welcome! Are you a guest here?', dq_guest: "Yes, I'm a guest", dq_taste: 'No, I want to taste the food',
+    dq_login: 'Guests: log in once on this phone, then scan the tablet QR again.',
+    dq_ok: 'Opted in: enjoy your meal', dq_excess: 'You had switched this meal off', dq_excess_note: 'You can still eat. It is noted for your PG.',
+    dq_leave: 'You are on leave', dq_leave_note: 'You can still eat. Your PG owner is told.',
+    dq_code: 'Type this code on the tablet', dq_left: 'Code works for {s} more seconds', dq_done: 'Confirmed ✓ Enjoy your meal!',
+    dq_codeold: 'Code expired. Scan the tablet QR again.',
+    taste_title: 'Taste the food', taste_intro: 'Free trial meal. Type your name and mobile, then type your code on the tablet.',
+    taste_name: 'Your name', taste_phone: 'Mobile number', taste_consent: 'I agree that this PG may call or WhatsApp me about staying here.',
+    taste_adult: 'I am 18 or older.', taste_get: 'Get my code', taste_code: 'Trial meal: type this code on the tablet', taste_fill: 'Please fill your name and a 10-digit mobile number, and tick both boxes.',
     pass_ok: 'Enjoy your meal!', pass_already: 'Already served at {t}', pass_nomeal: 'No meal is being served now.', pass_notguest: 'Not registered on this phone. Only guests of this PG get food. Guests: log in below.', pass_back: 'Back to my meals', pass_skipped: 'You had switched this meal off - please update your meals next time.',  nextQToday: 'One quick thing — eating {meal} today?', nextQTom: 'One quick thing — eating {meal} tomorrow?',
     waitTitle: 'Waiting for approval', waitBody: 'Your account is already open on another phone. Your PG manager has been asked to approve this phone. Keep this page open: it opens by itself once approved.', waitNote: 'After approval, your old phone will be logged out.', waitAgain: 'Check now', waitNo: 'Your PG manager did not approve this phone. Please talk to them.', waitOld: 'This request has expired. Please open your link again.',
     verifyTitle: 'Verify it is you', verifyHello: 'Hello, {name}! 👋', verifySub: 'To keep your account safe, enter the last 4 digits of your registered mobile number.', verifyLabel: 'Last 4 digits of your mobile number', verifyBtn: 'Verify & continue', verifyWrong: 'Those digits do not match. Tries left: {n}', verifyLocked: 'Too many wrong tries. This link is now paused. Please ask your PG manager for a new one.',
@@ -358,6 +373,7 @@ const link = new URLSearchParams(location.search).get('p') || '';
 const storeKey = 'pgmeal_' + link;
 const invite = (new URLSearchParams(location.search).get('c') || '').trim();
 const counter = (new URLSearchParams(location.search).get('k') || '').trim();      // meal counter QR
+const dq = (new URLSearchParams(location.search).get('dq') || '').trim();           // premium dining tablet QR (changes every 10 s)
 const posterMode = new URLSearchParams(location.search).get('poster') === '1';
 
 function store(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
@@ -633,6 +649,7 @@ function renderLogin(message, keep) {
         lmsg.innerHTML = `<div class="msg">${esc(res.message)}</div>`; btn.disabled = false; btn.textContent = t('cont'); return;
       }
       setToken(res.token);
+      if (dq && !goMeals) return showDining();
       if (counter && !goMeals) return showPass();
       await showMeals();
     } catch (e) { lmsg.innerHTML = `<div class="msg">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = t('cont'); }
@@ -964,9 +981,119 @@ function showCounterPoster() {
   document.head.appendChild(sc);
 }
 
+// ---------- Premium dining tablet QR (update 080) ----------
+let dqTimer = null, dqPoll = null;
+function backToMeals() {
+  clearInterval(dqTimer); clearInterval(dqPoll);
+  try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(link)); } catch (e) {}
+  goMeals = true; showMeals();
+}
+function showDiningChoice() {
+  app.innerHTML = `${langBar()}
+    <section class="card" style="text-align:center"><h1>${t('dq_choose')}</h1>
+      <button class="btn" id="dqg" style="margin-top:12px">${t('dq_guest')}</button>
+      <button class="btn ghost" id="dqt" style="margin-top:10px">${t('dq_taste')}</button></section>`;
+  wireLangBar(showDiningChoice);
+  document.getElementById('dqg').onclick = () => showLogin(t('dq_login'));
+  document.getElementById('dqt').onclick = showTaste;
+}
+function countdown(secs, onEnd) {
+  clearInterval(dqTimer);
+  let left = secs;
+  const el = () => document.getElementById('dqleft');
+  const draw = () => { const e = el(); if (e) e.textContent = t('dq_left', { s: left }); };
+  draw();
+  dqTimer = setInterval(() => { left--; if (left <= 0) { clearInterval(dqTimer); onEnd(); } else draw(); }, 1000);
+}
+async function showDining() {
+  clearInterval(dqTimer); clearInterval(dqPoll);
+  app.innerHTML = '<div class="spinner" aria-label="Loading"></div>';
+  let r;
+  try { r = await rpc('vote_dining_scan', { p_token: token(), p_dq: dq }); }
+  catch (e) { setToken(null); return showDiningChoice(); }
+  const who = r.name ? `<div class="who">${esc(r.name)}</div><div>${r.room ? t('room') + ' ' + esc(r.room) + '-' + esc(r.bed) + ' · ' : ''}${r.meal ? esc(t(r.meal)) : ''}</div>` : '';
+  if (!r.otp) {
+    const already = r.status === 'already';
+    app.innerHTML = `${langBar()}
+      <div class="pass ${already ? 'already' : 'none'}" role="status"><div class="big">${already ? '⚠️' : 'ℹ️'}</div>
+        <h1>${already ? t('pass_already', { t: esc(r.served_at) }) : esc(r.message || '')}</h1>${who}</div>
+      <p class="center"><button class="btn ghost" id="back">${t('pass_back')}</button></p>`;
+    wireLangBar(showDining);
+    document.getElementById('back').onclick = backToMeals;
+    return;
+  }
+  const look = { ok: ['ok', '✅', t('dq_ok'), ''], excess: ['already', '🍽️', t('dq_excess'), t('dq_excess_note')],
+                 leave: ['leave', '🧳', t('dq_leave'), t('dq_leave_note')] }[r.status] || ['ok', '✅', t('dq_ok'), ''];
+  app.innerHTML = `${langBar()}
+    <div class="pass ${look[0]}" role="status" id="dqpass">
+      <div class="big">${look[1]}</div><h1>${look[2]}</h1>${who}
+      ${look[3] ? `<p>${look[3]}</p>` : ''}
+      <div style="margin-top:8px">${t('dq_code')}</div>
+      <div class="otp" aria-label="${t('dq_code')}: ${esc(r.otp.split('').join(' '))}">${esc(r.otp)}</div>
+      <div id="dqleft" aria-live="off"></div>
+    </div>
+    ${nextCard(r)}
+    <p class="center"><button class="btn ghost" id="back">${t('pass_back')}</button></p>`;
+  wireLangBar(showDining);
+  countdown(r.expires_in || 180, () => { const p = document.getElementById('dqpass'); if (p) p.innerHTML = `<div class="big">⏱️</div><h1>${t('dq_codeold')}</h1>`; clearInterval(dqPoll); });
+  dqPoll = setInterval(async () => {
+    try {
+      const st = await rpc('vote_dining_status', { p_token: token() });
+      if (st && st.used) {
+        clearInterval(dqPoll); clearInterval(dqTimer);
+        const p = document.getElementById('dqpass');
+        if (p) { p.className = 'pass ok'; p.innerHTML = `<div class="big">✅</div><h1>${t('dq_done')}</h1>${who}<div class="clock">${esc(st.at || '')}</div>`; }
+      }
+    } catch (e) {}
+  }, 3000);
+  const _nc = document.getElementById('nextcard');
+  if (_nc) {
+    const setNext = async (eat) => {
+      try { await rpc('set_next_meal', { p_token: token(), p_eating: eat }); _nc.innerHTML = '<div class="day-title">✓ ' + t('saved') + '</div>'; toast(t('saved')); }
+      catch (e) { toast(e.message); }
+    };
+    const _y = document.getElementById('nyes'); if (_y) _y.onclick = () => setNext(true);
+    const _n = document.getElementById('nno'); if (_n) _n.onclick = () => setNext(false);
+  }
+  document.getElementById('back').onclick = backToMeals;
+}
+function showTaste(message) {
+  clearInterval(dqTimer); clearInterval(dqPoll);
+  app.innerHTML = `${langBar()}
+    <section class="card"><h1>🍛 ${t('taste_title')}</h1><p>${t('taste_intro')}</p>
+      <label for="tn">${t('taste_name')}</label><input class="t" id="tn" autocomplete="name" maxlength="60">
+      <label for="tp" style="display:block;margin-top:10px">${t('taste_phone')}</label>
+      <input class="t" id="tp" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="17">
+      <div class="trapf" aria-hidden="true"><input id="tw" tabindex="-1" autocomplete="off"></div>
+      <label class="check"><input type="checkbox" id="tc"><span>${t('taste_consent')}
+        <a href="https://pjvssm-12345.github.io/pg-app/privacy.html" target="_blank" rel="noopener">Privacy</a></span></label>
+      <label class="check"><input type="checkbox" id="ta"><span>${t('taste_adult')}</span></label>
+      <div id="tmsg" role="status" aria-live="polite">${message ? `<div class="msg">${esc(message)}</div>` : ''}</div>
+      <button class="btn" id="tgo" style="margin-top:12px">${t('taste_get')}</button></section>`;
+  wireLangBar(() => showTaste());
+  document.getElementById('tgo').onclick = async () => {
+    const name = document.getElementById('tn').value.trim(), phone = document.getElementById('tp').value.replace(/\D/g, '').slice(-10);
+    const consent = document.getElementById('tc').checked, adult = document.getElementById('ta').checked;
+    const msg = document.getElementById('tmsg');
+    if (document.getElementById('tw').value) return;   // bot
+    if (name.length < 2 || !/^[6-9]\d{9}$/.test(phone) || !consent || !adult) { msg.innerHTML = `<div class="msg">${t('taste_fill')}</div>`; return; }
+    const btn = document.getElementById('tgo'); btn.disabled = true; btn.textContent = t('checking');
+    try {
+      const r = await rpc('public_taste_start', { p_link: link, p_dq: dq, p_name: name, p_phone: phone, p_consent: consent, p_adult: adult });
+      app.innerHTML = `${langBar()}
+        <div class="pass trial" role="status"><div class="big">🍛</div><h1>${t('taste_code')}</h1>
+          <div class="who">${esc(name)}</div><div>${esc(r.pg_name || '')} · ${esc(t(r.meal))}</div>
+          <div class="otp" aria-label="${esc(r.otp.split('').join(' '))}">${esc(r.otp)}</div><div id="dqleft"></div></div>`;
+      wireLangBar(showDiningChoice);
+      countdown(r.expires_in || 180, () => showTaste(t('dq_codeold')));
+    } catch (e) { msg.innerHTML = `<div class="msg">${esc(e.message)}</div>`; btn.disabled = false; btn.textContent = t('taste_get'); }
+  };
+}
+
 async function start() {
   if (link && counter && posterMode) return showCounterPoster();
   if (link && !token() && read(reqKey)) return showWaiting();
+  if (link && dq) return token() ? showDining() : showDiningChoice();
   if (link && counter) return token() ? showPass() : showLogin(t('pass_notguest'));
   if (link && invite) {
     try { history.replaceState(null, '', location.pathname + '?p=' + encodeURIComponent(link)); } catch (e) {}
