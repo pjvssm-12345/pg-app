@@ -73,6 +73,14 @@
   .poster #qr svg { width: min(78vw, 380px); height: auto; }
   .skel { height: 220px; border-radius: 14px; background: linear-gradient(90deg, #E3E9E5, #EDF1EF, #E3E9E5); margin-top: 14px; }
   @media print { .noprint { display: none !important; } }
+
+  /* 25 Oct 2026: clearer card edges, darker grey text, visible tap and keyboard focus */
+  :root { --bg: #EEF2EF; --line: #CFD8D3; --muted: #4D5A54; }
+  html { -webkit-tap-highlight-color: rgba(47, 107, 79, .18); }
+  button, a.btn, [role="button"] { touch-action: manipulation; }
+  button:active { filter: brightness(.92); }
+  :focus-visible { outline: 3px solid #2F6B4F; outline-offset: 2px; }
+  .langs button { min-height: 40px; }
 </style>
 </head>
 <body>

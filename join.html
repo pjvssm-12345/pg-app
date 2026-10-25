@@ -85,6 +85,14 @@
   .spinner { margin: 60px auto; width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--leaf);
     border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 25 Oct 2026: clearer card edges, darker grey text, visible tap and keyboard focus */
+  :root { --bg: #EEF2EF; --line: #CFD8D3; --muted: #4D5A54; }
+  html { -webkit-tap-highlight-color: rgba(47, 107, 79, .18); }
+  button, a.btn, [role="button"] { touch-action: manipulation; }
+  button:active { filter: brightness(.92); }
+  :focus-visible { outline: 3px solid #2F6B4F; outline-offset: 2px; }
+  .langs button { min-height: 40px; }
 </style>
 <style>
   input.f2, select.f2 { width: 100%; font: inherit; font-size: 16px; min-height: 46px; padding: 0 12px; border: 1px solid #848F89;

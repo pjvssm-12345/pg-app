@@ -132,6 +132,14 @@
   .legal-links { max-width: 480px; margin: 4px auto 28px; text-align: center; font-size: 12px; color: var(--muted); }
   .legal-links a { color: var(--muted); }
   @media print { .legal-links { display: none; } }
+
+  /* 25 Oct 2026: clearer card edges, darker grey text, visible tap and keyboard focus */
+  :root { --bg: #EEF2EF; --line: #CFD8D3; --muted: #4D5A54; }
+  html { -webkit-tap-highlight-color: rgba(47, 107, 79, .18); }
+  button, a.btn, [role="button"] { touch-action: manipulation; }
+  button:active { filter: brightness(.92); }
+  :focus-visible { outline: 3px solid #2F6B4F; outline-offset: 2px; }
+  .langs button { min-height: 40px; }
 </style>
 </head>
 <body>
