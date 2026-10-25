@@ -153,6 +153,7 @@ const SUPABASE_KEY = 'sb_publishable_sA1wWWN3V3OysXAKAqL3ug_95wyHYEX';
 const CONSENT_VERSION = '2026-10-03';   // = Privacy Policy version the guest agreed to
 const qs = new URLSearchParams(location.search);
 const code = (qs.get('j') || '').trim();
+const stay = qs.get('stay') === '1';   // 25 Oct 2026: guests who ALREADY stay here add their details (room, since, rent paid)
 const app = document.getElementById('app');
 
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -187,10 +188,10 @@ async function rpc(fn, body) {
 
 // ---------- Printable QR poster for the counter: join.html?j=CODE&poster=1 ----------
 function showPoster(info) {
-  const url = location.origin + location.pathname + '?j=' + encodeURIComponent(code);
+  const url = location.origin + location.pathname + '?j=' + encodeURIComponent(code) + (stay ? '&stay=1' : '');
   app.innerHTML = `<div class="poster">
     <h1>${esc(info.pg_name)}</h1>
-    <p class="sub" style="font-size:20px">New guest? Scan to join 📱</p>
+    <p class="sub" style="font-size:20px">${stay ? 'Already staying here? Scan to add your details 📱' : 'New guest? Scan to join 📱'}</p>
     <div id="qr" aria-label="QR code"></div>
     <p class="note">Open your phone camera and point it at this code.<br>Fill your details, ID and selfie. The manager will confirm your bed.</p>
     <p class="noprint"><button class="btn" onclick="print()">🖨️ Print this poster</button></p>
@@ -246,11 +247,24 @@ function renderForm() {
   app.innerHTML = `
     <header class="hero">
       <div class="brand">🏠 ${esc(info.pg_name)}</div>
-      <h1>Welcome! Join us 🙏</h1>
+      <h1>${stay ? 'Add your details 🙏' : 'Welcome! Join us 🙏'}</h1>
       <div class="chips2"><span class="chip">⏱️ About 3 minutes</span><span class="chip">📄 100% paperless</span></div>
     </header>
-    <p class="sub">Fill this on your own phone. The manager will check it and confirm your bed.</p>
-    ${am ? `<section class="card"><h2>What you get</h2>${am}</section>` : ''}
+    <p class="sub">${stay ? 'You already stay here: we are moving our records to the app. Fill this on your own phone; the manager will confirm it.'
+      : 'Fill this on your own phone. The manager will check it and confirm your bed.'}</p>
+    ${am && !stay ? `<section class="card"><h2>What you get</h2>${am}</section>` : ''}
+    ${stay ? `<section class="card"><h2>Your stay now</h2>
+      <div class="grid2">
+        <div>${field('stay_room', 'Room number', 'text', 'maxlength="20" placeholder="101"')}</div>
+        <div>${field('stay_bed', 'Bed (if you know)', 'text', 'maxlength="5" placeholder="A"')}</div>
+      </div>
+      ${field('stay_since', 'Staying here since', 'date')}
+      <div class="grid2">
+        <div>${field('stay_rent', 'Monthly rent (₹)', 'number', 'min="0" max="200000" inputmode="numeric" placeholder="7000"')}</div>
+        <div>${field('stay_paid', 'Rent paid up to', 'date')}</div>
+      </div>
+      <p class="note">"Rent paid up to" = the last day you have already paid for. Leave it empty if unsure; the manager will check.</p>
+    </section>` : ''}
     <section class="card"><h2>1. About you</h2>
       ${field('full_name', 'Full name (as on your ID)', 'text', 'maxlength="100" autocomplete="name"')}
       ${field('phone', 'Mobile number (WhatsApp)', 'tel', 'maxlength="15" inputmode="tel" autocomplete="tel" placeholder="98450 12345"')}
@@ -296,7 +310,8 @@ function renderForm() {
     </section>
     <div id="msg"></div>
     <button class="btn" id="send">Send to PG manager</button>
-    <p class="note center">Your details go only to this PG's owner and manager.</p>`;
+    <p class="note center">Your details go only to this PG's owner and manager.</p>
+    ${helpBox()}`;
   wire();
 }
 
@@ -333,6 +348,12 @@ function wire() {
 
 const val = id => (document.getElementById(id)?.value || '').trim();
 function problem() {
+  if (stay) {
+    if (!val('stay_room')) return 'Enter your room number.';
+    if (!val('stay_since')) return 'Enter the date you started staying here.';
+    if (val('stay_since') > new Date().toISOString().slice(0, 10)) return 'The "staying since" date cannot be in the future.';
+    if (val('stay_paid') && val('stay_paid') < val('stay_since')) return '"Rent paid up to" cannot be before the date you started staying.';
+  }
   if (val('full_name').length < 2) return 'Enter your full name.';
   const ph = val('phone').replace(/\D/g, '');
   if (ph.length < 10 || ph.length > 15) return 'Enter your 10-digit mobile number.';
@@ -369,6 +390,8 @@ async function send() {
     if (!draft) { draft = await rpc('join_start', { p_code: code, p_device: deviceId }); store('pgjoin_' + code, JSON.stringify(draft)); }
     const idFile = await upload(draft.folder, 'id', photos.id.blob);
     const selfieFile = await upload(draft.folder, 'selfie', photos.selfie.blob);
+    if (stay) await rpc('join_stay_details', { p_secret: draft.secret, p_data: {
+      room: val('stay_room'), bed: val('stay_bed'), since: val('stay_since'), rent: val('stay_rent'), paid_upto: val('stay_paid') } });
     const res = await rpc('join_submit', { p_secret: draft.secret, p_data: {
       full_name: val('full_name'), phone: val('phone'), email: val('email'), gender: val('gender'), food: val('food'),
       tea: val('tea'), is_adult: val('adult') === 'yes', guardian_name: val('guardian_name'), guardian_phone: val('guardian_phone'),
@@ -377,7 +400,7 @@ async function send() {
       rules_ok: true, consent_ok: true, consent_version: CONSENT_VERSION } });
     store('pgjoin_' + code, null);
     app.innerHTML = `<div class="ok-box"><div class="big">✅</div><h1>Sent successfully!</h1>
-      <p class="sub">The manager of ${esc(info.pg_name)} will check your details and confirm your bed.
+      <p class="sub">The manager of ${esc(info.pg_name)} will check your details and confirm ${stay ? 'them' : 'your bed'}.
       You will get a WhatsApp message with your personal link.</p><p class="note">Reference: <b>${esc(res.ref)}</b></p></div>`;
   } catch (e) {
     if (/expired|already sent/i.test(e.message)) store('pgjoin_' + code, null);
@@ -403,6 +426,27 @@ function shrinkPhoto(file) {
     img.src = url;
   });
 }
+
+// ---------- Need help? (25 Oct 2026): type the problem, see the fix. Nothing is saved. ----------
+function helpBox() {
+  return `<details class="card" id="helpbox"><summary style="cursor:pointer;font-weight:700">🛟 Need help with this form?</summary>
+    <p class="note">Write your problem, for example "photo not uploading".</p>
+    <input class="f2" id="help_q" maxlength="200" placeholder="What is the problem?">
+    <button class="btn ghost small" id="help_go" style="margin-top:8px">Show me the fix</button>
+    <div id="help_out"></div></details>`;
+}
+async function helpFind() {
+  const out = document.getElementById('help_out');
+  out.innerHTML = '<p class="note">Looking…</p>';
+  try {
+    const list = await rpc('ts_guest_match', { p_text: val('help_q'), p_page: 'join' }) || [];
+    out.innerHTML = list.length ? list.map(g => `<div style="margin-top:10px"><b>${esc(g.title)}</b><ol style="margin:6px 0 0 18px;padding:0">${
+        (g.steps || []).map(s => `<li style="margin:3px 0">${esc(s.t)}</li>`).join('')}</ol></div>`).join('')
+      + '<p class="note">Still stuck? Ask the PG manager at the counter.</p>'
+      : '<p class="note">We could not find that. Please ask the PG manager at the counter.</p>';
+  } catch (e) { out.innerHTML = `<div class="msg">${esc(e.message)}</div>`; }
+}
+document.addEventListener('click', e => { if (e.target && e.target.id === 'help_go') helpFind(); });
 
 async function start() {
   if (!/^[0-9a-f]{16}$/.test(code)) { app.innerHTML = '<h1>Joining link missing</h1><p class="sub">Please scan the QR code at the PG counter again.</p>'; return; }

@@ -438,6 +438,28 @@ async function rpc(fn, body) {
   return data;
 }
 
+// ---------- Need help? (25 Oct 2026): the guest types the problem and sees the fix. Nothing is saved. ----------
+function helpBox() {
+  return `<details class="card" style="margin-top:14px"><summary style="cursor:pointer;font-weight:700">🛟 Need help?</summary>
+    <p class="note">Write your problem, for example "page not opening" or "paid but shows due".</p>
+    <input id="help_q" maxlength="200" placeholder="What is the problem?" style="width:100%;font:inherit;font-size:16px;min-height:46px;padding:0 12px;border:1px solid #848F89;border-radius:12px">
+    <button class="btn ghost small" id="help_go" style="margin-top:8px">Show me the fix</button>
+    <div id="help_out"></div></details>`;
+}
+async function helpFind() {
+  const out = document.getElementById('help_out'); if (!out) return;
+  const q = (document.getElementById('help_q')?.value || '').trim();
+  out.innerHTML = '<p class="note">Looking…</p>';
+  try {
+    const list = await rpc('ts_guest_match', { p_text: q, p_page: 'meal' }) || [];
+    out.innerHTML = list.length ? list.map(g => `<div style="margin-top:10px"><b>${esc(g.title)}</b><ol style="margin:6px 0 0 18px;padding:0">${
+        (g.steps || []).map(st => `<li style="margin:3px 0">${esc(st.t)}</li>`).join('')}</ol></div>`).join('')
+      + '<p class="note">Still not fixed? Use "Report a problem" above, or tell your PG manager.</p>'
+      : '<p class="note">We could not find that. Please tell your PG manager.</p>';
+  } catch (e) { out.innerHTML = `<div class="msg">${esc(e.message)}</div>`; }
+}
+document.addEventListener('click', e => { if (e.target && e.target.id === 'help_go') helpFind(); });
+
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function dayName(iso, isToday) {
   const [y, m, d] = iso.split('-').map(Number);
@@ -564,7 +586,7 @@ function showWaiting() {
   clearTimeout(waitTimer);
   app.innerHTML = `${langBar()}<h1>⏳ ${t('waitTitle')}</h1><p class="sub">${t('waitBody')}</p>
     <p class="sub">${t('waitNote')}</p><div id="wmsg"></div>
-    <button id="wchk" class="btn all ghost">${t('waitAgain')}</button>`;
+    <button id="wchk" class="btn all ghost">${t('waitAgain')}</button>${helpBox()}`;
   wireLangBar(showWaiting);
   const check = async () => {
     clearTimeout(waitTimer);
@@ -596,7 +618,7 @@ async function showLogin(message) {
       const [rooms, info] = await Promise.all([rpc('vote_rooms', { p_link: link }), rpc('vote_note', { p_link: link })]);
       loginData = { rooms, note: info && info.note, digits: !(info && info.digits === false) };
     } catch (e) {
-      app.innerHTML = `${langBar()}<h1>${t('cantOpen')}</h1><div class="msg">${esc(e.message)}</div>`;
+      app.innerHTML = `${langBar()}<h1>${t('cantOpen')}</h1><div class="msg">${esc(e.message)}</div>${helpBox()}`;
       wireLangBar(() => showLogin(message)); return;
     }
   }
@@ -727,6 +749,7 @@ function render() {
     ${days}
     ${problemCard()}
     <p class="center"><button class="link" id="notme">${t('notMe', { name: esc(s.name) })}</button></p>
+    ${helpBox()}
     <p class="foot">${esc(s.pg_name)} · powered by <b>PG Manager</b></p>`;
   document.title = s.pg_name;
   wireLangBar(render);
