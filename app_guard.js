@@ -1,5 +1,5 @@
-// PG Manager page guard (kept as a separate file so the app's security policy stays unchanged).
-// 1. Stops other websites from showing PG Manager inside a hidden frame to trick clicks ("clickjacking").
+// PGNivas page guard (kept as a separate file so the app's security policy stays unchanged).
+// 1. Stops other websites from showing PGNivas inside a hidden frame to trick clicks ("clickjacking").
 // 2. Shows a one-time notice that the app uses only essential browser storage (no ads, no tracking).
 (function () {
   if (window.top !== window.self) {
@@ -21,7 +21,7 @@
       'flex-wrap:wrap;box-shadow:0 8px 24px rgba(0,0,0,.25);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
     var txt = document.createElement('span');
     txt.style.cssText = 'flex:1 1 260px';
-    txt.appendChild(document.createTextNode('PG Manager uses only essential browser storage to keep you logged in. No ads, no tracking. '));
+    txt.appendChild(document.createTextNode('PGNivas uses only essential browser storage to keep you logged in. No ads, no tracking. '));
     var a = document.createElement('a');
     a.href = 'cookies.html';
     a.target = '_blank';
