@@ -1,69 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <base href="/pg-app/">
-
-  <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9nboGFWsO2HU3Q8CrkjfHmtnZPl539UHoVLj6JUhyWk=' 'wasm-unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://idowfsvjkbatqshkpimg.supabase.co; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://idowfsvjkbatqshkpimg.supabase.co wss://idowfsvjkbatqshkpimg.supabase.co https://www.gstatic.com https://fonts.gstatic.com; worker-src 'self' blob:; frame-src 'self' blob:; media-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="PGNivas: rooms, rent, meals and repairs for PG owners, in one place.">
-  <meta name="theme-color" content="#2F6B4F">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="format-detection" content="telephone=no">
-  <link rel="preconnect" href="https://idowfsvjkbatqshkpimg.supabase.co" crossorigin>
-  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="PGNivas">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>PGNivas</title>
-  <link rel="manifest" href="manifest.json">
-  <script src="app_guard.js"></script>
-  <style>
-    html, body { margin: 0; height: 100%; background: #F4F7F5; }
-    #splash { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 14px; background: linear-gradient(160deg, #2F6B4F, #1F4E3A); color: #fff; transition: opacity .35s;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    #splash img { width: 88px; height: 88px; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
-    #splash b { font-size: 26px; letter-spacing: .3px; }
-    #splash span { font-size: 15px; opacity: .85; }
-    #splash i { width: 140px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.2); overflow: hidden; position: relative; }
-    #splash i::after { content: ""; position: absolute; left: -40%; top: 0; width: 40%; height: 100%; background: #F2C14E;
-      border-radius: 4px; animation: load 1.1s ease-in-out infinite; }
-    @keyframes load { to { left: 100%; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="origin">
+<title>PGNivas has moved</title>
+<script>
+// PGNivas moved to pgnivas.in on 8 Nov 2026. This page only forwards to the new address.
+(function () {
+  var dest = 'https://pgnivas.in/app/' + location.search;
+  var hash = location.hash;
+  location.replace(dest + hash);
+})();
+</script>
+<style>body{font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:32px 20px;text-align:center;color:#1D2B24}a{color:#2F6B4F}</style>
 </head>
 <body>
-  <noscript><p style="font-family:system-ui,sans-serif;padding:24px">PGNivas needs JavaScript. Please turn it on in your browser settings.</p></noscript>
-  <div id="splash" aria-label="Loading">
-    <img src="icons/Icon-192.png" alt="">
-    <b>PGNivas</b>
-    <span>Rooms · Rent · Meals · Repairs</span>
-    <i></i>
-  </div>
-  <script>
-    // Hide the loading screen once the app has drawn itself.
-    (function () {
-      var hide = function () {
-        var s = document.getElementById('splash');
-        if (!s) return;
-        s.style.opacity = '0';
-        setTimeout(function () { s.remove(); }, 400);
-      };
-      new MutationObserver(function (m, o) {
-        if (document.querySelector('flutter-view, flt-glass-pane')) { o.disconnect(); setTimeout(hide, 300); }
-      }).observe(document.body, { childList: true, subtree: true });
-      setTimeout(hide, 15000);   // never block the app
-    })();
-  </script>
-  <script src="flutter_bootstrap.js" async></script>
+<p>PGNivas has moved to <a id="go" href="https://pgnivas.in/app/">pgnivas.in/app</a>.</p>
+<script>document.getElementById('go').href = 'https://pgnivas.in/app/' + location.search + location.hash;</script>
 </body>
 </html>
